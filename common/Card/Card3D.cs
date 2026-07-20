@@ -13,6 +13,8 @@ public partial class Card3D : Node3D
         this._backSprite = GetNode<Sprite3D>("BackSprite");
     }
 
+
+
     // turns card data into a physical form
     // takes in a back texture so that if we wanted to change
     // the deck style we could
@@ -38,4 +40,6 @@ public partial class Card3D : Node3D
         //      texture2d faceTexture = GD.Load<Texture2D>($"res://Sprites/Cards/{CardData.Suit}_{CardData.Rank}.png")
         //      _frontSprite.Texture = faceTexture
     }
+
+    
 }

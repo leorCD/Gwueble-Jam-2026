@@ -1,21 +1,21 @@
 using Godot;
 using System;
 
-public enum CardSuit {Spades, Hearts, Diamonds, Clubs}
+public enum CardSuit {Fins, Teefs, Tails, Scales}
 public enum CardRank
 {
-    Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, 
-    Jack, Queen, King
+    Two, Three, Four, Five,
+    Puffer, Butter, Whale, Shark 
 }
 
 public class Card
 {
-    public int Value {get;set;}
+    public CardRank Rank {get;set;}
     public CardSuit Suit {get;set;}
 
-    public Card(int value, CardSuit suit)
+    public Card(CardRank rank, CardSuit suit)
     {
-        this.Value = value;
+        this.Rank = rank;
         this.Suit = suit;
     }
 }

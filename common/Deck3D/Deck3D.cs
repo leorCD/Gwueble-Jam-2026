@@ -8,7 +8,21 @@ public partial class Deck3D : Node3D
     private Stack<Card3D> _physicalStack = new Stack<Card3D>();
     private const float _cardPadding = 0.002f; // how thick each card is
 
-    public void CreateDeck(List<Card> deckData)
+    // public override void _Ready()
+    // {
+    //     MeshInstance3D debugPosition = GetNodeOrNull<MeshInstance3D>("debugPosition");
+    //     if (debugPosition != null)
+    //     {
+    //         // hide the debugPosition box
+    //         StandardMaterial3D mat = debugPosition.Mesh.SurfaceGetMaterial(0) as StandardMaterial3D;
+            
+    //         Color newColor = mat.AlbedoColor;
+    //         newColor.A = 0.0f; // 0% visible
+    //         mat.AlbedoColor = newColor;
+    //     }
+    // }
+
+    public void Init(List<Card> deckData)
     {
         ClearDeck();
 
@@ -20,8 +34,9 @@ public partial class Deck3D : Node3D
 
             float yOffset = i * _cardPadding;
             newCard.Position = new Vector3(0, yOffset, 0); // always relative to parent
-            newCard.RotationDegrees = new Vector3(0, 0, 180f); // face down
+            newCard.RotationDegrees = new Vector3(90f, 0, 0); // face down
             newCard.SetupCard(deckData[i], CardBackTexture); // initialize faces
+            newCard.Name = $"{newCard.CardData.Rank} of {newCard.CardData.Suit}";
 
             _physicalStack.Push(newCard);
         }
