@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://531wptnymffw"]
+
+[ext_resource type="Script" uid="uid://di5yusw4s3y24" path="res://common/Deck3D/Deck3D.cs" id="1_6cc6i"]
+[ext_resource type="PackedScene" uid="uid://8et4ghot6tqp" path="res://common/Card/card_3d.tscn" id="2_d2jkq"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_264ok"]
+size = Vector3(0.285, 0.17, 0.4)
+
+[node name="Deck3D" type="Node3D" unique_id=697087947]
+script = ExtResource("1_6cc6i")
+CardTemplate = ExtResource("2_d2jkq")
+
+[node name="Stack" type="MeshInstance3D" parent="." unique_id=1382085671]
+mesh = SubResource("BoxMesh_264ok")
+
+[node name="Card3D" parent="." unique_id=578617489 instance=ExtResource("2_d2jkq")]

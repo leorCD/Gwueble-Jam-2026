@@ -1,0 +1,52 @@
+using Godot;
+using System.Collections.Generic;
+
+public partial class Deck3D : Node3D
+{
+    [Export] public Texture2D CardBackTexture; // uniform deck style
+    [Export] public PackedScene CardTemplate; // just contains an empty card
+    private Stack<Card3D> _physicalStack = new Stack<Card3D>();
+    private const float _cardPadding = 0.002f; // how thick each card is
+
+    public void CreateDeck(List<Card> deckData)
+    {
+        ClearDeck();
+
+        // .Count is a built in, number of children property
+        for (int i = 0; i < deckData.Count; i++)
+        {
+            Card3D newCard = CardTemplate.Instantiate<Card3D>();
+            this.AddChild(newCard);
+
+            float yOffset = i * _cardPadding;
+            newCard.Position = new Vector3(0, yOffset, 0); // always relative to parent
+            newCard.RotationDegrees = new Vector3(0, 0, 180f); // face down
+            newCard.SetupCard(deckData[i], CardBackTexture); // initialize faces
+
+            _physicalStack.Push(newCard);
+        }
+    }
+
+    public void ClearDeck()
+    {
+        while (_physicalStack.Count > 0)
+        {
+            Card3D card = _physicalStack.Pop(); // remove card from stack
+            card.QueueFree(); // delete card
+        }
+    }
+
+    public Card3D DrawCard()
+    {
+        if (_physicalStack.Count == 0)
+        {
+            GD.PrintErr("[Deck3D] Attempted to draw a card from an empty deck");
+            return null;
+        }
+
+        Card3D topCard = _physicalStack.Pop();
+        RemoveChild(topCard); // we need to explicitly change the parent
+
+        return topCard;
+    }
+}

@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://8et4ghot6tqp"]
+
+[ext_resource type="Script" uid="uid://slpo8fn6kb70" path="res://common/Card/Card3D.cs" id="1_1piq8"]
+[ext_resource type="Texture2D" uid="uid://uhev0mq2d5wi" path="res://icon.svg" id="2_4w8pg"]
+
+[node name="Card3D" type="Node3D" unique_id=578617489]
+script = ExtResource("1_1piq8")
+
+[node name="FrontTexture" type="Sprite3D" parent="." unique_id=498187732]
+transform = Transform3D(0.21954526, 0, 0, 0, 0.33002418, 0, 0, 0, 1, 0, 0, 0)
+shaded = true
+double_sided = false
+texture = ExtResource("2_4w8pg")
+
+[node name="BackTexture" type="Sprite3D" parent="." unique_id=1783000827]
+transform = Transform3D(-0.21954526, 0, -8.742276e-08, 0, 0.33002418, 0, 1.9193257e-08, 0, -0.9999999, 0, 0, 0)
+shaded = true
+double_sided = false
+texture = ExtResource("2_4w8pg")

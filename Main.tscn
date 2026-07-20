@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://b5jjmty5rb5j7"]
+
+[ext_resource type="Texture2D" uid="uid://c18q1acecb3my" path="res://Kenney Prototype Textures/PNG/Dark/texture_13.png" id="1_r0du0"]
+[ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
+[ext_resource type="PackedScene" uid="uid://bns8recpw0eud" path="res://Opponent/opponent.tscn" id="3_fos0i"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3dxm6"]
+albedo_texture = ExtResource("1_r0du0")
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lgr22"]
+albedo_texture = ExtResource("2_cm0pq")
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_trn2v"]
+radius = 0.295
+height = 0.001
+
+[node name="Map" type="Node3D" unique_id=1904017264]
+
+[node name="floor CSGBox3D" type="CSGBox3D" parent="." unique_id=1906619783]
+material_override = SubResource("StandardMaterial3D_3dxm6")
+size = Vector3(9.099365, 0.22460938, 8.591797)
+
+[node name="table CSGMesh3D" type="CSGMesh3D" parent="." unique_id=1489986507]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52015287, 0)
+material_override = SubResource("StandardMaterial3D_lgr22")
+mesh = SubResource("SphereMesh_trn2v")
+
+[node name="Opponent" parent="." unique_id=380103215 instance=ExtResource("3_fos0i")]
