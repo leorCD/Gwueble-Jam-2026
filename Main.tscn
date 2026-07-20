@@ -9,6 +9,8 @@
 [ext_resource type="Script" uid="uid://clmgoo1hmd06v" path="res://common/Player/HumanPlayer/HumanPlayer.cs" id="6_3dxm6"]
 [ext_resource type="Script" uid="uid://bbfba1x3ok2f4" path="res://common/Player/AIPlayer/AIPlayer.cs" id="6_lgr22"]
 [ext_resource type="Texture2D" uid="uid://uhev0mq2d5wi" path="res://icon.svg" id="6_trn2v"]
+[ext_resource type="Texture2D" uid="uid://cd3dmp2vm377m" path="res://common/sprites/IMG_0251.png" id="10_20pc6"]
+[ext_resource type="Texture2D" uid="uid://dji63f78e1hin" path="res://common/sprites/IMG_0252.png" id="11_5vvyt"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lgr22"]
 albedo_texture = ExtResource("2_cm0pq")
@@ -90,17 +92,17 @@ transform = Transform3D(0.44127092, 0, 0.8973739, 0, 1, 0, -0.8973739, 0, 0.4412
 script = ExtResource("6_lgr22")
 
 [node name="Sprite3D" type="Sprite3D" parent="players/Fish" unique_id=301469225]
-transform = Transform3D(0.52088034, 0, 0, 0, 0.8588725, 0, 0, 0, 1, 0, -0.042233467, 0)
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, -0.042233467, 0)
 shaded = true
 double_sided = false
-texture = ExtResource("6_trn2v")
+texture = ExtResource("10_20pc6")
 
 [node name="Bigger Fish" type="Node3D" parent="players" unique_id=1542423472]
 transform = Transform3D(0.6809381, 0, -0.7323408, 0, 1, 0, 0.7323408, 0, 0.6809381, 0.8207507, 0.6867531, -0.49743313)
 script = ExtResource("6_lgr22")
 
 [node name="Sprite3D" type="Sprite3D" parent="players/Bigger Fish" unique_id=715994198]
-transform = Transform3D(0.52088034, 0, 0, 0, 0.8588725, 0, 0, 0, 1, 0, -0.042233467, 0)
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, -0.042233467, 0)
 shaded = true
 double_sided = false
-texture = ExtResource("6_trn2v")
+texture = ExtResource("11_5vvyt")
