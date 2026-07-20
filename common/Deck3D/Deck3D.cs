@@ -35,7 +35,7 @@ public partial class Deck3D : Node3D
 
             float yOffset = i * _cardPadding;
             newCard.Position = new Vector3(0, yOffset, 0); // always relative to parent
-            newCard.RotationDegrees = new Vector3(90f, 0, 0); // face down
+            newCard.RotationDegrees = new Vector3(-90f, 0, 0); // face down
 
             newCard.SetupCard(deckData[i], CardBackTexture, CardFrontTextureAtlas); // initialize faces
             newCard.Name = $"{newCard.CardData.Rank} of {newCard.CardData.Suit}";
