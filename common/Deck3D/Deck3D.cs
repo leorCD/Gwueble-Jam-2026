@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public partial class Deck3D : Node3D
 {
     [Export] public Texture2D CardBackTexture; // uniform deck style
+    [Export] public Texture2D CardFrontTextureAtlas; // uniform deck style
     [Export] public PackedScene CardTemplate; // just contains an empty card
     private Stack<Card3D> _physicalStack = new Stack<Card3D>();
     private const float _cardPadding = 0.002f; // how thick each card is
@@ -35,7 +36,8 @@ public partial class Deck3D : Node3D
             float yOffset = i * _cardPadding;
             newCard.Position = new Vector3(0, yOffset, 0); // always relative to parent
             newCard.RotationDegrees = new Vector3(90f, 0, 0); // face down
-            newCard.SetupCard(deckData[i], CardBackTexture); // initialize faces
+
+            newCard.SetupCard(deckData[i], CardBackTexture, CardFrontTextureAtlas); // initialize faces
             newCard.Name = $"{newCard.CardData.Rank} of {newCard.CardData.Suit}";
 
             _physicalStack.Push(newCard);

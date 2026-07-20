@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://8et4ghot6tqp"]
 
 [ext_resource type="Script" uid="uid://slpo8fn6kb70" path="res://common/Card/Card3D.cs" id="1_1piq8"]
-[ext_resource type="Texture2D" uid="uid://uhev0mq2d5wi" path="res://icon.svg" id="2_4w8pg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1piq8"]
 size = Vector3(0.09472656, 0.16699219, 0.001953125)
@@ -10,17 +9,16 @@ size = Vector3(0.09472656, 0.16699219, 0.001953125)
 script = ExtResource("1_1piq8")
 
 [node name="BackSprite" type="Sprite3D" parent="." unique_id=498187732]
-transform = Transform3D(0.07367377, 0, 0, 0, 0.12998047, 0, 0, 0, 0.02500527, 0, 0, 0)
-modulate = Color(0, 1, 0, 1)
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
 shaded = true
 double_sided = false
-texture = ExtResource("2_4w8pg")
 
 [node name="FrontSprite" type="Sprite3D" parent="." unique_id=1783000827]
-transform = Transform3D(-0.07367378, 0, -3.7756895e-09, 0, 0.12998047, 0, 1.1124431e-08, 0, -0.02500526, 0, 0, 0)
-modulate = Color(0, 0, 1, 1)
+transform = Transform3D(-0.02, 0, -3.0199159e-09, 0, 0.02, 0, 3.0199159e-09, 0, -0.02, 0, 0, 0)
 double_sided = false
-texture = ExtResource("2_4w8pg")
+hframes = 13
+vframes = 4
+frame = 1
 
 [node name="Area3D" type="Area3D" parent="." unique_id=1339361210]
 

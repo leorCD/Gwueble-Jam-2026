@@ -3,6 +3,8 @@
 [ext_resource type="Texture2D" uid="uid://c18q1acecb3my" path="res://Kenney Prototype Textures/PNG/Dark/texture_13.png" id="1_r0du0"]
 [ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://531wptnymffw" path="res://common/Deck3D/deck_3d.tscn" id="3_3dxm6"]
+[ext_resource type="Texture2D" uid="uid://brvnl3tcqtyex" path="res://common/Card/back.png" id="3_trn2v"]
+[ext_resource type="Texture2D" uid="uid://c4c0vd2b45jxn" path="res://common/Card/sprite_sheet.png" id="4_03owx"]
 [ext_resource type="Script" uid="uid://dbtvfvoc8dlkp" path="res://Scripts/GameManager.cs" id="4_cm0pq"]
 [ext_resource type="Script" uid="uid://clmgoo1hmd06v" path="res://common/Player/HumanPlayer/HumanPlayer.cs" id="6_3dxm6"]
 [ext_resource type="Script" uid="uid://bbfba1x3ok2f4" path="res://common/Player/AIPlayer/AIPlayer.cs" id="6_lgr22"]
@@ -44,6 +46,8 @@ ActivePlayers = [NodePath("../players/You"), NodePath("../players/Fish"), NodePa
 
 [node name="Deck3D" parent="." unique_id=697087947 instance=ExtResource("3_3dxm6")]
 transform = Transform3D(0.95975137, 0, 0.28085098, 0, 1, 0, -0.28085098, 0, 0.95975137, 0, 0.54737425, 0)
+CardBackTexture = ExtResource("3_trn2v")
+CardFrontTextureAtlas = ExtResource("4_03owx")
 
 [node name="map" type="Node" parent="." unique_id=1991366174]
 
