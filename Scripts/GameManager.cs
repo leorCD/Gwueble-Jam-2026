@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 public partial class GameManager : Node3D
 {
@@ -83,6 +85,8 @@ public partial class GameManager : Node3D
             {
                 DealCardToPlayer(player);
             }
+
+            player.BuildVisualHand();
         }
     }
 
@@ -99,16 +103,44 @@ public partial class GameManager : Node3D
         {
             GD.Print($"[GameManager] {currentActor.GetType().Name}'s turn");
 
-            currentActor.TakeTurn();
+            currentActor.CardSelected += onCardSelected;
+            currentActor.StartTurn();
         }
     }
 
-    private void OnTurnFinished() // called by both human and AI to tell the manager they finished their turn
+    private void onCardSelected(Card3D card)
+    {
+        GamePlayer currentActor = ActivePlayers[_currentTurnIndex] as GamePlayer;
+        GamePlayer nextActor = ActivePlayers[(_currentTurnIndex + 1) % ActivePlayers.Count] as GamePlayer;
+        GD.Print($"{currentActor.Name} asked {nextActor.Name} for any {card.CardData.Rank}s");
+
+        if (nextActor.hasCard(card) is { Count: > 0} matchingCards)
+        {
+            GD.Print($"{nextActor.Name} has {string.Join(", ", matchingCards.Select(c => c.Name))}");
+
+            foreach (Card3D matchedCard in matchingCards)
+            {
+                nextActor.RemoveCard(matchedCard);
+                currentActor.AddCard(matchedCard);
+            }
+
+            nextActor.BuildVisualHand();
+            currentActor.BuildVisualHand();
+        }
+        else
+        {
+            GD.Print($"{nextActor.Name} does not have any {card.CardData.Rank}s, Go Fish");
+            DealCardToPlayer(currentActor);
+            currentActor.BuildVisualHand();
+        }
+
+        StartNextTurn();
+    }
+    private void StartNextTurn()
     {
         _currentTurnIndex++;
         RunCurrentTurn();
     }
-
 
     public void DealCardToPlayer(GamePlayer activePlayer)
     {
@@ -122,7 +154,7 @@ public partial class GameManager : Node3D
         if (drawnCard != null)
         {
             // pass card to player
-            activePlayer.AddCard(drawnCard);
+            activePlayer.AddCard(drawnCard, VisualDeck.GlobalPosition);
 
             GD.Print($"{activePlayer.Name} drew a {drawnCard.CardData.Rank} of {drawnCard.CardData.Suit}");
         }

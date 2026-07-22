@@ -1,18 +1,36 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 public abstract partial class GamePlayer : Node3D
 {
     public List<Card3D> Hand {get;set;} = new List<Card3D>();
     public int Books {get;set;}
-    public virtual void AddCard(Card3D newCard)
+    [Signal] public delegate void CardSelectedEventHandler(Card3D card);
+    protected Dictionary<Card3D, Vector3> CardBasePositions = new();
+    private HashSet<Card3D> _knownCards = new();
+    
+    public virtual void AddCard(Card3D newCard, Vector3? spawnGlobalPos = null)
     {
         Hand.Add(newCard); // add card to hand
-        this.AddChild(newCard); // parent to player
+
+        if (newCard.GetParent<Node3D>() == null) // reparent
+            this.AddChild(newCard); // parent to player
+        else
+            newCard.Reparent(this);
+
+        Vector3 oldGlobal = newCard.GlobalPosition;
+
+        // if a spawn point was provided, snap the card there instantly
+        if (spawnGlobalPos.HasValue)
+            newCard.GlobalPosition = spawnGlobalPos.Value;
+        else
+            newCard.GlobalPosition = oldGlobal;
+
         CheckForBooks(newCard.CardData.Rank); // detect 4 of the same rank
-        
-        UpdateVisualHand();
     }
+    public virtual void StartTurn() { throw new NotImplementedException(); }
+    public virtual void EndTurn() { throw new NotImplementedException(); }
 
     private void CheckForBooks(CardRank newCardRank)
     {
@@ -30,15 +48,24 @@ public abstract partial class GamePlayer : Node3D
             }
         }
     }
-    public virtual void UpdateVisualHand()
+
+    public void RemoveCard(Card3D card)
     {
-        if (Hand.Count == 0) return; // no anchor or empty hand
+        if (Hand.Remove(card))
+        {
+            card.Reparent(GetTree().CurrentScene);
+        }
+    }
+
+    public void BuildVisualHand()
+    {
+        if (Hand.Count == 0) return;
 
         float cardSpacing = 0.05f;
         float defaultSpacing = 0.1f;
         float maxHandWidth = 0.3f;
         if (Hand.Count > 1)
-        {   // calculate spacing to fit layout width
+        {
             float tightSpacing = maxHandWidth / (Hand.Count - 1);
             cardSpacing = Mathf.Min(defaultSpacing, tightSpacing);
         }
@@ -50,40 +77,52 @@ public abstract partial class GamePlayer : Node3D
         float centerIndex = (Hand.Count - 1) / 2f;
         float maxRotationAngle = 12f;
         Vector3 offset = new Vector3(0, -0.15f, 0);
-        
-        // position each card
+
         for (int i = 0; i < Hand.Count; i++)
         {
-            float normalizedCenterOffset = 0f; // calculate card from the center from a value of -1 to 1
-            if (Hand.Count > 1)
-            {
-                normalizedCenterOffset = (i - centerIndex) / centerIndex;
-            }
-            
+            float normalizedCenterOffset = Hand.Count > 1 ? (i - centerIndex) / centerIndex : 0f;
             float zTilt = -normalizedCenterOffset * maxRotationAngle;
-            float yDip = Mathf.Pow(normalizedCenterOffset, 2) * fanDipIntensity; // squared to make a parabola
-            
-            Vector3 targetPosition = new Vector3(
-                startX + (i * cardSpacing),
-                -yDip,
-                distanceForward
-            );
-        
+            float yDip = Mathf.Pow(normalizedCenterOffset, 2) * fanDipIntensity;
+
+            Vector3 targetPosition = new Vector3(startX + (i * cardSpacing), -yDip, distanceForward);
             Card3D card = Hand[i];
-            card.RotationDegrees = new Vector3(30, 0, zTilt);
-            
+            Vector3 finalRotation = new Vector3(30, 0, zTilt);
+
             Vector3 basePosition = targetPosition + offset;
-            Vector3 initialLocalZ = card.Transform.Basis.Z * (i * 0.002f);
-            card.Position = basePosition + initialLocalZ;
+            Vector3 initialLocalZ = new Vector3(0, 0, i * 0.002f); // see note below
+
+            Vector3 finalRestingPosition = basePosition + initialLocalZ;
+            CardBasePositions[card] = finalRestingPosition;
+
+            bool isNew = !_knownCards.Contains(card);
+            _knownCards.Add(card);
+
+            AnimateCardToRestingPosition(card, finalRestingPosition, finalRotation, isNew);
         }
     }
 
-
-
-    [Signal] public delegate void TurnFinishedEventHandler();
-    public abstract void TakeTurn(); // abstract method bc ai is auto while player is prompted
-    public void FinishTurn()
+    protected virtual void AnimateCardToRestingPosition(Card3D card, Vector3 targetPosition, Vector3 targetRotation, bool isNew)
     {
-        EmitSignal(SignalName.TurnFinished);
+        float duration = isNew ? 2f : 0.2f;
+
+        Tween tween = CreateTween().SetParallel(true);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(card, "position", targetPosition, duration);
+        tween.TweenProperty(card, "rotation_degrees", targetRotation, duration);
+    }
+
+    public List<Card3D> hasCard(Card3D card)
+    {
+        List<Card3D> matchingRanks = new();
+
+        foreach (Card3D cardInHand in Hand)
+        {
+            if (cardInHand.CardData.Rank == card.CardData.Rank)
+            {
+                matchingRanks.Add(cardInHand);
+            }
+        }
+
+        return matchingRanks;
     }
 }
