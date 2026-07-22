@@ -13,17 +13,22 @@ script = ExtResource("1_1piq8")
 transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
 shaded = true
 double_sided = false
+alpha_cut = 1
+texture_filter = 0
 
 [node name="FrontSprite" type="Sprite3D" parent="." unique_id=1783000827]
 transform = Transform3D(-0.02, 0, -3.0199159e-09, 0, 0.02, 0, 3.0199159e-09, 0, -0.02, 0, 0, 0)
+shaded = true
 double_sided = false
 alpha_cut = 1
+texture_filter = 0
 texture = ExtResource("2_1piq8")
 hframes = 13
 vframes = 4
 frame = 1
 
 [node name="Area3D" type="Area3D" parent="." unique_id=1339361210]
+collision_layer = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=80384671]
 shape = SubResource("BoxShape3D_1piq8")

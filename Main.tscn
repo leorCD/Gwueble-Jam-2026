@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://clmgoo1hmd06v" path="res://common/Player/HumanPlayer/HumanPlayer.cs" id="6_3dxm6"]
 [ext_resource type="Script" uid="uid://bbfba1x3ok2f4" path="res://common/Player/AIPlayer/AIPlayer.cs" id="6_lgr22"]
 [ext_resource type="Texture2D" uid="uid://uhev0mq2d5wi" path="res://icon.svg" id="6_trn2v"]
+[ext_resource type="Script" uid="uid://cc3c7vk8pohpq" path="res://CameraTilt.cs" id="8_5vvyt"]
 [ext_resource type="Texture2D" uid="uid://cd3dmp2vm377m" path="res://common/sprites/IMG_0251.png" id="10_20pc6"]
 [ext_resource type="Texture2D" uid="uid://dji63f78e1hin" path="res://common/sprites/IMG_0252.png" id="11_5vvyt"]
 
@@ -56,10 +57,14 @@ CardFrontTextureAtlas = ExtResource("4_03owx")
 [node name="table CSGMesh3D" type="CSGMesh3D" parent="map" unique_id=1489986507]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52015287, 0)
 material_override = SubResource("StandardMaterial3D_lgr22")
+use_collision = true
+collision_layer = 2
 mesh = SubResource("SphereMesh_trn2v")
 
 [node name="floor CSGBox3D" type="CSGBox3D" parent="map" unique_id=1906619783]
 material_override = SubResource("StandardMaterial3D_3dxm6")
+use_collision = true
+collision_layer = 2
 size = Vector3(9.099365, 0.22460938, 8.591797)
 
 [node name="env" type="Node" parent="." unique_id=179103097]
@@ -79,7 +84,8 @@ script = ExtResource("6_3dxm6")
 
 [node name="Camera3D" type="Camera3D" parent="players/You" unique_id=1143341561]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
-fov = 66.04129
+fov = 70.0
+script = ExtResource("8_5vvyt")
 
 [node name="Sprite3D" type="Sprite3D" parent="players/You" unique_id=1361728744]
 transform = Transform3D(0.52088034, 0, 0, 0, 0.8588725, 0, 0, 0, 1, 0, -0.15934157, 0)

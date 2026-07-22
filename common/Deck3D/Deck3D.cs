@@ -9,20 +9,6 @@ public partial class Deck3D : Node3D
     private Stack<Card3D> _physicalStack = new Stack<Card3D>();
     private const float _cardPadding = 0.002f; // how thick each card is
 
-    // public override void _Ready()
-    // {
-    //     MeshInstance3D debugPosition = GetNodeOrNull<MeshInstance3D>("debugPosition");
-    //     if (debugPosition != null)
-    //     {
-    //         // hide the debugPosition box
-    //         StandardMaterial3D mat = debugPosition.Mesh.SurfaceGetMaterial(0) as StandardMaterial3D;
-            
-    //         Color newColor = mat.AlbedoColor;
-    //         newColor.A = 0.0f; // 0% visible
-    //         mat.AlbedoColor = newColor;
-    //     }
-    // }
-
     public void Init(List<Card> deckData)
     {
         ClearDeck();

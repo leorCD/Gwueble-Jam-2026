@@ -49,21 +49,7 @@ public partial class Card3D : Node3D
     }
 
 
-    public override void _Input(InputEvent @event)
-    {
-        if (@event is InputEventMouseMotion mouseMotion)
-        {
-            
-        }
-    }
+    public void onHover() {EmitSignal(SignalName.CardHovered, this);}
 
-    public void onHovered()
-    {
-        EmitSignal(SignalName.CardHovered, this);
-    }
-
-    public void onUnhover()
-    {
-        EmitSignal(SignalName.CardUnhovered, this);
-    }
+    public void onUnhover() {EmitSignal(SignalName.CardUnhovered, this);}
 }

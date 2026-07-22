@@ -7,6 +7,7 @@ public partial class GameManager : Node3D
     [Export] public Deck3D VisualDeck;
     private List<Card> _serializedDeck = new List<Card>();
     private Random _random = new Random();
+    private const int CardsToDeal = 10;
     public override void _Ready()
     {
         StartNewGame();
@@ -73,7 +74,6 @@ public partial class GameManager : Node3D
         RunCurrentTurn();
     }
 
-    private const int CardsToDeal = 5;
     private void DealCards()
     {
         GD.Print("-- Dealing out cards --");
