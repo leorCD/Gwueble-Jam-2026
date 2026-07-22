@@ -9,15 +9,11 @@ public partial class GameManager : Node3D
     [Export] public Deck3D VisualDeck;
     private List<Card> _serializedDeck = new List<Card>();
     private Random _random = new Random();
-    private const int CardsToDeal = 10;
-    public override void _Ready()
-    {
-        StartNewGame();
-    }
+    private const int CardsToDeal = 5;
 
     [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
     private int _currentTurnIndex = 0;
-    private void StartNewGame()
+    public void StartNewGame()
     {
         // setup deck
         GenerateDeck();
@@ -103,6 +99,7 @@ public partial class GameManager : Node3D
         {
             GD.Print($"[GameManager] {currentActor.GetType().Name}'s turn");
 
+            currentActor.CardSelected -= onCardSelected;
             currentActor.CardSelected += onCardSelected;
             currentActor.StartTurn();
         }
@@ -138,7 +135,7 @@ public partial class GameManager : Node3D
     }
     private void StartNextTurn()
     {
-        _currentTurnIndex++;
+        _currentTurnIndex = (_currentTurnIndex + 1) % ActivePlayers.Count;;
         RunCurrentTurn();
     }
 

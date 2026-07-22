@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dlu5cclg85cfw"
-path="res://.godot/imported/FishGambaBox.glb-34a5df80300d343325b0ef1571824b05.scn"
+path="res://.godot/imported/FishGambaBox.glb-901346f0564ed3df2ae435b67dbc030c.scn"
 
 [deps]
 
-source_file="res://FishGambaBox.glb"
-dest_files=["res://.godot/imported/FishGambaBox.glb-34a5df80300d343325b0ef1571824b05.scn"]
+source_file="res://common/blender models/FishGambaBox.glb"
+dest_files=["res://.godot/imported/FishGambaBox.glb-901346f0564ed3df2ae435b67dbc030c.scn"]
 
 [params]
 
