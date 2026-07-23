@@ -57,7 +57,7 @@ public abstract partial class GamePlayer : Node3D
         }
     }
 
-    public void BuildVisualHand()
+    public async System.Threading.Tasks.Task BuildVisualHand()
     {
         if (Hand.Count == 0) return;
 
@@ -77,7 +77,8 @@ public abstract partial class GamePlayer : Node3D
         float centerIndex = (Hand.Count - 1) / 2f;
         float maxRotationAngle = 12f;
         Vector3 offset = new Vector3(0, -0.15f, 0);
-
+        
+        List<Tween> activeTweens = new List<Tween>();
         for (int i = 0; i < Hand.Count; i++)
         {
             float normalizedCenterOffset = Hand.Count > 1 ? (i - centerIndex) / centerIndex : 0f;
@@ -97,18 +98,33 @@ public abstract partial class GamePlayer : Node3D
             bool isNew = !_knownCards.Contains(card);
             _knownCards.Add(card);
 
-            AnimateCardToRestingPosition(card, finalRestingPosition, finalRotation, isNew);
+            Tween cardTween = AnimateCardToRestingPosition(card, finalRestingPosition, finalRotation, isNew);
+            if (cardTween != null)
+            {
+                activeTweens.Add(cardTween);
+            }
+        }
+
+        // Await all individual card animations to finish running
+        foreach (Tween tween in activeTweens)
+        {
+            if (tween.IsValid())
+            {
+                await ToSignal(tween, Tween.SignalName.Finished);
+            }
         }
     }
 
-    protected virtual void AnimateCardToRestingPosition(Card3D card, Vector3 targetPosition, Vector3 targetRotation, bool isNew)
+    protected Tween AnimateCardToRestingPosition(Card3D card, Vector3 targetPosition, Vector3 targetRotation, bool isNew)
     {
-        float duration = isNew ? 2f : 0.2f;
+        float duration = isNew ? 1f : 0.2f;
 
         Tween tween = CreateTween().SetParallel(true);
         tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
         tween.TweenProperty(card, "position", targetPosition, duration);
         tween.TweenProperty(card, "rotation_degrees", targetRotation, duration);
+
+        return tween;
     }
 
     public List<Card3D> hasCard(Card3D card)

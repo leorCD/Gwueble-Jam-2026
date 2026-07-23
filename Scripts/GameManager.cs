@@ -7,13 +7,19 @@ using System.Text.RegularExpressions;
 public partial class GameManager : Node3D
 {
     [Export] public Deck3D VisualDeck;
+    [Export] public Node3D Table;
     private List<Card> _serializedDeck = new List<Card>();
     private Random _random = new Random();
     private const int CardsToDeal = 5;
-
     [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
     private int _currentTurnIndex = 0;
-    public void StartNewGame()
+    public override void _Ready()
+    {
+        // setup players
+        PlacePlayers();
+    }
+
+    public async void StartNewGame()
     {
         // setup deck
         GenerateDeck();
@@ -30,10 +36,39 @@ public partial class GameManager : Node3D
         }
 
         // deal cards
-        DealCards();
+        await DealCards();
 
         // start turn cycle
         StartTurnCycle();
+    }
+
+    private void PlacePlayers()
+    {
+        if (ActivePlayers.Count <= 0 || Table == null) return;
+
+        float seatHeightOffset = 0.25f;
+        float radius = 1f; // distance from the center
+
+        for (int i = 0; i < ActivePlayers.Count; i++)
+        {
+            GamePlayer currentPlayer = ActivePlayers[i] as GamePlayer;
+            float angle = i * (2.0f * Mathf.Pi / ActivePlayers.Count);
+
+            float x = Table.Position.X + (radius * Mathf.Cos(angle));
+            float z = Table.Position.Z + (radius * Mathf.Sin(angle));
+            float y = Table.Position.Y + seatHeightOffset;
+
+            Vector3 newPosition = new Vector3(x, y, z);
+            Transform3D newTransform = Transform3D.Identity;
+            newTransform.Origin = newPosition; // set origin first to avoid error with a global vec3.zero
+            
+            Vector3 horizontalDir = newPosition - Table.GlobalPosition;
+            horizontalDir.Y = 0;
+
+            newTransform = newTransform.LookingAt(newPosition + horizontalDir, Vector3.Up);
+
+            currentPlayer.GlobalTransform = newTransform;
+        }
     }
 
     private void GenerateDeck()
@@ -63,7 +98,6 @@ public partial class GameManager : Node3D
         GD.Print("[GameManager] Shuffled current deck");
     }
 
-
     private void StartTurnCycle()
     {
         GD.Print("-- Starting Turn Cycle --");
@@ -72,18 +106,25 @@ public partial class GameManager : Node3D
         RunCurrentTurn();
     }
 
-    private void DealCards()
+    private async System.Threading.Tasks.Task DealCards()
     {
         GD.Print("-- Dealing out cards --");
+
+        List<System.Threading.Tasks.Task> dealingTasks = new();
         foreach (GamePlayer player in ActivePlayers)
         {
             for (int i = 0; i < CardsToDeal; i++)
             {
                 DealCardToPlayer(player);
             }
-
-            player.BuildVisualHand();
+            
+            System.Threading.Tasks.Task playerHandTask = player.BuildVisualHand();
+            dealingTasks.Add(playerHandTask);
         }
+
+        await System.Threading.Tasks.Task.WhenAll(dealingTasks);
+        
+        GD.Print("[GameManager] All cards finished dealing!");
     }
 
     private void RunCurrentTurn()
@@ -105,11 +146,42 @@ public partial class GameManager : Node3D
         }
     }
 
-    private void onCardSelected(Card3D card)
+    private void StartNextTurn()
+    {
+        _currentTurnIndex = (_currentTurnIndex + 1) % ActivePlayers.Count;;
+        RunCurrentTurn();
+    }
+
+    private async void onCardSelected(Card3D card)
+    {
+        await TakeMatchingCards(card);
+
+        StartNextTurn();
+    }
+
+    private async System.Threading.Tasks.Task TakeMatchingCards(Card3D card)
     {
         GamePlayer currentActor = ActivePlayers[_currentTurnIndex] as GamePlayer;
         GamePlayer nextActor = ActivePlayers[(_currentTurnIndex + 1) % ActivePlayers.Count] as GamePlayer;
+        
+        Transform3D currentOrigTrans = currentActor.GlobalTransform;
+        Transform3D nextOrigTrans = nextActor.GlobalTransform;
+        
         GD.Print($"{currentActor.Name} asked {nextActor.Name} for any {card.CardData.Rank}s");
+
+        Tween lookTween1 = GlanceAtPlayer(currentActor, nextActor, 0.15f);
+        Tween lookTween2 = GlanceAtPlayer(nextActor, currentActor);
+        await ToSignal(lookTween1, Tween.SignalName.Finished);
+        if (lookTween2.IsValid()) await ToSignal(lookTween2, Tween.SignalName.Finished);
+
+        float thinkTime = (float)_random.NextDouble() * 1.5f + 0.5f;
+
+        var (origin, downTween, nextactorsprite) = LookAtCards(nextActor, tiltDegrees: 15f, duration: 0.3f);
+        await ToSignal(downTween, Tween.SignalName.Finished);
+
+        await ToSignal(GetTree().CreateTimer(thinkTime), SceneTreeTimer.SignalName.Timeout);
+
+        ResetSprite(nextactorsprite, origin, 0.3f);
 
         if (nextActor.hasCard(card) is { Count: > 0} matchingCards)
         {
@@ -121,22 +193,87 @@ public partial class GameManager : Node3D
                 currentActor.AddCard(matchedCard);
             }
 
-            nextActor.BuildVisualHand();
-            currentActor.BuildVisualHand();
+            await nextActor.BuildVisualHand();
         }
         else
         {
             GD.Print($"{nextActor.Name} does not have any {card.CardData.Rank}s, Go Fish");
             DealCardToPlayer(currentActor);
-            currentActor.BuildVisualHand();
         }
 
-        StartNextTurn();
+        await currentActor.BuildVisualHand();
+
+        Tween returnTween1 = ResetGlance(currentActor, currentOrigTrans);
+        Tween returnTween2 = ResetGlance(nextActor, nextOrigTrans);
+        
+        // Await both returns before finishing the method
+        await ToSignal(returnTween1, Tween.SignalName.Finished);
+        if (returnTween2.IsValid()) await ToSignal(returnTween2, Tween.SignalName.Finished);
     }
-    private void StartNextTurn()
+
+    private Tween GlanceAtPlayer(GamePlayer actor, GamePlayer target, float glanceWeight = 0.35f, float duration = 0.4f)
     {
-        _currentTurnIndex = (_currentTurnIndex + 1) % ActivePlayers.Count;;
-        RunCurrentTurn();
+        Transform3D origTrans = actor.GlobalTransform;
+
+        // Calculate horizontal vector to target (factoring in the inverted model direction)
+        Vector3 dirToTarget = -(target.GlobalPosition - actor.GlobalPosition);
+        dirToTarget.Y = 0;
+        Vector3 lookTarget = actor.GlobalPosition + dirToTarget;
+
+        // Calculate full look and interpolate it
+        Transform3D fullLook = origTrans.LookingAt(lookTarget, Vector3.Up);
+        Transform3D glanceTrans = origTrans.InterpolateWith(fullLook, glanceWeight);
+
+        // Create and execute the tween
+        Tween tween = CreateTween();
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(actor, "global_transform", glanceTrans, duration);
+
+        return tween;
+    }
+
+    private Tween ResetGlance(GamePlayer actor, Transform3D originalTransform, float duration = 0.4f)
+    {
+        Tween tween = CreateTween();
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(actor, "global_transform", originalTransform, duration);
+
+        return tween;
+    }
+
+    private (Transform3D OriginalTransform, Tween AnimationTween, Sprite3D sprite) LookAtCards(GamePlayer actor, float tiltDegrees = 15f, float duration = 0.3f)
+    {
+        Sprite3D actorSprite = actor.GetNodeOrNull<Sprite3D>("Sprite3D");
+        if (actorSprite == null) 
+        {
+            return (Transform3D.Identity, CreateTween(), null);
+        }
+
+        // Capture the snapshot right before the animation starts
+        Transform3D originalSpriteTransform = actorSprite.GlobalTransform;
+
+        float radians = Mathf.DegToRad(tiltDegrees);
+        Basis tiltedBasis = originalSpriteTransform.Basis * new Basis(Vector3.Right, radians);
+
+        Transform3D lookDownTrans = originalSpriteTransform;
+        lookDownTrans.Basis = tiltedBasis;
+
+        Tween tween = CreateTween();
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(actorSprite, "global_transform", lookDownTrans, duration);
+
+        // Return both pieces of data packed together
+        return (originalSpriteTransform, tween, actorSprite);
+    }
+
+    
+    private Tween ResetSprite(Sprite3D actor, Transform3D originalTransform, float duration = 0.4f)
+    {
+        Tween tween = CreateTween();
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.TweenProperty(actor, "global_transform", originalTransform, duration);
+
+        return tween;
     }
 
     public void DealCardToPlayer(GamePlayer activePlayer)

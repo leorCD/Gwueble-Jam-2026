@@ -98,9 +98,10 @@ theme_override_font_sizes/font_size = 159
 text = "test start game"
 metadata/_edit_use_anchors_ = true
 
-[node name="GameManager" type="Node3D" parent="." unique_id=885311470 node_paths=PackedStringArray("VisualDeck", "ActivePlayers")]
+[node name="GameManager" type="Node3D" parent="." unique_id=885311470 node_paths=PackedStringArray("VisualDeck", "Table", "ActivePlayers")]
 script = ExtResource("4_cm0pq")
 VisualDeck = NodePath("../Deck3D")
+Table = NodePath("../map/table CSGMesh3D")
 ActivePlayers = [NodePath("../players/You"), NodePath("../players/Fish"), NodePath("../players/Bigger Fish")]
 
 [node name="Deck3D" parent="." unique_id=697087947 instance=ExtResource("3_3dxm6")]
