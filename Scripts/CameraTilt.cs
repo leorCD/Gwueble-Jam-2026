@@ -3,7 +3,7 @@ using System;
 
 public partial class CameraTilt : Camera3D
 {
-    private float maxTilt = 12f;
+    private float maxTilt = 30f;
     private Vector3 targetRotation = Vector3.Zero;
     private IInteractable interactable;
     public override void _UnhandledInput(InputEvent @event)

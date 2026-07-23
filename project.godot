@@ -16,6 +16,10 @@ run/main_scene="uid://b5jjmty5rb5j7"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EventBus="*uid://dqafoe2lub3qj"
+
 [display]
 
 window/size/viewport_width=1280
@@ -44,4 +48,5 @@ MouseLeft={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"

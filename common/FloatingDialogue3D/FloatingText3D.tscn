@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://ccx3shqs42q60"]
+
+[ext_resource type="Script" uid="uid://b10qtdy6enewv" path="res://common/FloatingDialogue3D/FloatingText3D.cs" id="1_h6w7t"]
+
+[sub_resource type="SystemFont" id="SystemFont_bg06i"]
+font_names = PackedStringArray("Cursive")
+hinting = 0
+
+[node name="FloatingText3D" type="Label3D" unique_id=1518772547]
+transform = Transform3D(0.195, 0, 0, 0, 0.195, 0, 0, 0, 0.195, 0, 0, 0)
+pixel_size = 0.01
+billboard = 1
+alpha_cut = 1
+render_priority = 59
+outline_render_priority = 58
+text = "custom text
+"
+font = SubResource("SystemFont_bg06i")
+uppercase = true
+script = ExtResource("1_h6w7t")

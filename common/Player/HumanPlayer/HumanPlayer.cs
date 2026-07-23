@@ -17,12 +17,43 @@ public partial class HumanPlayer : GamePlayer
         PlayerCamera = GetNode<Camera3D>("Camera3D"); 
     }
 
+    public override void StartTurn()
+    {
+        isMyTurn = true;
+        
+        foreach (Card3D card in Hand)
+        {
+            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
+            {
+                sprite.Modulate = Colors.White;
+            }
+        }
+    }
+    public override void EndTurn()
+    {
+        isMyTurn = false;
+    }
+
     public override void AddCard(Card3D newCard, Vector3? spawnGlobalPos)
     {
+        foreach (Card3D card in Hand)
+        {
+            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
+            {
+                sprite.Modulate = Colors.DimGray;
+            }
+        }
+
         base.AddCard(newCard, spawnGlobalPos);
 
         newCard.CardHovered += onCardHovered;
         newCard.CardUnhovered += onCardUnhovered;
+        
+        
+        if (newCard.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D newsprite)
+        {
+            newsprite.Modulate = Colors.DimGray;
+        }
     }
 
 
@@ -145,6 +176,14 @@ public partial class HumanPlayer : GamePlayer
     {
         if (_currentlyHoveredCard == null) return; // no card to select
 
+        foreach (Card3D card in Hand)
+        {
+            if (card != _currentlyHoveredCard && card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
+            {
+                sprite.Modulate = Colors.DimGray;
+            }
+        }
+
         EmitSignal(SignalName.CardSelected, _currentlyHoveredCard);
 
         EndTurn();
@@ -157,12 +196,4 @@ public partial class HumanPlayer : GamePlayer
         return basePos + card.Transform.Basis.Z * (index * 0.002f);
     }
 
-    public override void StartTurn()
-    {
-        isMyTurn = true;
-    }
-    public override void EndTurn()
-    {
-        isMyTurn = false;
-    }
 }

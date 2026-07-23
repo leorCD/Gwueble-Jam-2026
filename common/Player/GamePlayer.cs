@@ -141,4 +141,14 @@ public abstract partial class GamePlayer : Node3D
 
         return matchingRanks;
     }
+
+    public void Say(string dialogue, float lifetime)
+    {
+        Vector3 basePos = GlobalPosition + new Vector3(0, 0.3f, 0);
+        float forwardDistance = 0.4f;
+        Vector3 forwardOffset = GlobalTransform.Basis.Z * forwardDistance;
+        Vector3 pos = basePos + forwardOffset;
+
+        EventBus.Instance.EmitSignal(EventBus.SignalName.DialogueRequested, pos, dialogue, lifetime, Colors.Transparent);
+    }
 }

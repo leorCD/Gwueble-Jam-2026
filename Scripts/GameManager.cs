@@ -13,6 +13,8 @@ public partial class GameManager : Node3D
     private const int CardsToDeal = 5;
     [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
     private int _currentTurnIndex = 0;
+    private bool playing = false;
+
     public override void _Ready()
     {
         // setup players
@@ -131,8 +133,7 @@ public partial class GameManager : Node3D
     {
         if (_currentTurnIndex >= ActivePlayers.Count) // everyone took their turn
         {
-            // EndRound();
-            _currentTurnIndex = 0;
+            EndGame();
             return;
         }
 
@@ -166,27 +167,32 @@ public partial class GameManager : Node3D
         
         Transform3D currentOrigTrans = currentActor.GlobalTransform;
         Transform3D nextOrigTrans = nextActor.GlobalTransform;
-        
-        GD.Print($"{currentActor.Name} asked {nextActor.Name} for any {card.CardData.Rank}s");
 
+        // look at the player theyre asking
         Tween lookTween1 = GlanceAtPlayer(currentActor, nextActor, 0.15f);
         Tween lookTween2 = GlanceAtPlayer(nextActor, currentActor);
         await ToSignal(lookTween1, Tween.SignalName.Finished);
         if (lookTween2.IsValid()) await ToSignal(lookTween2, Tween.SignalName.Finished);
 
-        float thinkTime = (float)_random.NextDouble() * 1.5f + 0.5f;
+        GD.Print($"{currentActor.Name} asked {nextActor.Name} for any {card.CardData.Rank}s");
+        currentActor.Say($"do you have any {card.CardData.Rank}s", 2f);
 
+        // make the target look at their cards
         var (origin, downTween, nextactorsprite) = LookAtCards(nextActor, tiltDegrees: 15f, duration: 0.3f);
         await ToSignal(downTween, Tween.SignalName.Finished);
 
+        // wait some time for them to think
+        float thinkTime = (float)_random.NextDouble() * 1.5f + 0.5f;
         await ToSignal(GetTree().CreateTimer(thinkTime), SceneTreeTimer.SignalName.Timeout);
 
+        // make look away from the cards
         ResetSprite(nextactorsprite, origin, 0.3f);
 
         if (nextActor.hasCard(card) is { Count: > 0} matchingCards)
         {
             GD.Print($"{nextActor.Name} has {string.Join(", ", matchingCards.Select(c => c.Name))}");
-
+            nextActor.Say("yeah i have that", 2f);
+            
             foreach (Card3D matchedCard in matchingCards)
             {
                 nextActor.RemoveCard(matchedCard);
@@ -198,6 +204,8 @@ public partial class GameManager : Node3D
         else
         {
             GD.Print($"{nextActor.Name} does not have any {card.CardData.Rank}s, Go Fish");
+            nextActor.Say("Go fish", 2f);
+
             DealCardToPlayer(currentActor);
         }
 
@@ -226,16 +234,15 @@ public partial class GameManager : Node3D
 
         // Create and execute the tween
         Tween tween = CreateTween();
-        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
         tween.TweenProperty(actor, "global_transform", glanceTrans, duration);
 
         return tween;
     }
-
     private Tween ResetGlance(GamePlayer actor, Transform3D originalTransform, float duration = 0.4f)
     {
         Tween tween = CreateTween();
-        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
         tween.TweenProperty(actor, "global_transform", originalTransform, duration);
 
         return tween;
@@ -264,9 +271,7 @@ public partial class GameManager : Node3D
 
         // Return both pieces of data packed together
         return (originalSpriteTransform, tween, actorSprite);
-    }
-
-    
+    }    
     private Tween ResetSprite(Sprite3D actor, Transform3D originalTransform, float duration = 0.4f)
     {
         Tween tween = CreateTween();
@@ -275,7 +280,7 @@ public partial class GameManager : Node3D
 
         return tween;
     }
-
+    
     public void DealCardToPlayer(GamePlayer activePlayer)
     {
         if (VisualDeck == null)
@@ -292,5 +297,23 @@ public partial class GameManager : Node3D
 
             GD.Print($"{activePlayer.Name} drew a {drawnCard.CardData.Rank} of {drawnCard.CardData.Suit}");
         }
+    }
+
+    private void EndGame()
+    {
+        _currentTurnIndex = 0;
+
+        GamePlayer playerWithMostBooks = null;
+        foreach (GamePlayer player in ActivePlayers)
+        {
+            GD.Print($"{player.Name} - {player.Books} books");
+
+            if (playerWithMostBooks == null || player.Books > playerWithMostBooks.Books)
+            {
+                playerWithMostBooks = player;
+            }
+        }
+
+        GD.Print($"{playerWithMostBooks.Name} won with {playerWithMostBooks.Books} books");
     }
 }

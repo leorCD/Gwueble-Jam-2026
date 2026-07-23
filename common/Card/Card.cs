@@ -5,7 +5,7 @@ public enum CardSuit {Fins, Teefs, Tails, Scales}
 public enum CardRank
 {
     Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten,
-    Puffer, Butter, Whale, Shark 
+    Whale, Shark, Butter, Puffer
 }
 
 public class Card

@@ -31,17 +31,17 @@ public partial class Card3D : Node3D
         // get the baseline column index from your rank enum
         int rankColumn = (int)CardData.Rank;
     
-        if (rankColumn >= 9)
-        {   // if it's a face card (index 9 or higher), remap it to match the art columns
-            rankColumn = CardData.Rank switch
-            {
-                CardRank.Whale   => 9,  // First face card column
-                CardRank.Shark   => 10, // Second face card column 
-                CardRank.Butter  => 11, // Third face card column
-                CardRank.Puffer  => 12, // Fourth face card column
-                _ => rankColumn
-            };
-        }
+        // if (rankColumn >= 9)
+        // {   // if it's a face card (index 9 or higher), remap it to match the art columns
+        //     rankColumn = CardData.Rank switch
+        //     {
+        //         CardRank.Whale   => 9,  // First face card column
+        //         CardRank.Shark   => 10, // Second face card column 
+        //         CardRank.Butter  => 11, // Third face card column
+        //         CardRank.Puffer  => 12, // Fourth face card column
+        //         _ => rankColumn
+        //     };
+        // }
 
         // flatten the grid using the corrected column
         _frontSprite.Texture = frontAltas;

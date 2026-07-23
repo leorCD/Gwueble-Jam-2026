@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://b5jjmty5rb5j7"]
 
-[ext_resource type="Script" uid="uid://4ssctgkoolbs" path="res://StartGame.cs" id="1_c6i3y"]
+[ext_resource type="Script" uid="uid://4ssctgkoolbs" path="res://Scripts/StartGame.cs" id="1_c6i3y"]
+[ext_resource type="Script" uid="uid://dlyt81xy2d387" path="res://common/FloatingDialogue3D/DialogueManager.cs" id="1_mwfav"]
 [ext_resource type="Texture2D" uid="uid://c18q1acecb3my" path="res://Kenney Prototype Textures/PNG/Dark/texture_13.png" id="1_r0du0"]
+[ext_resource type="PackedScene" uid="uid://ccx3shqs42q60" path="res://common/FloatingDialogue3D/FloatingText3D.tscn" id="2_3p2gp"]
 [ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://531wptnymffw" path="res://common/Deck3D/deck_3d.tscn" id="3_3dxm6"]
 [ext_resource type="Texture2D" uid="uid://brvnl3tcqtyex" path="res://common/Card/back.png" id="3_trn2v"]
@@ -55,6 +57,10 @@ tonemap_mode = 2
 glow_enabled = true
 
 [node name="test game" type="Node3D" unique_id=1904017264]
+
+[node name="DialogueManager" type="Node" parent="." unique_id=2120839894]
+script = ExtResource("1_mwfav")
+FloatingTextScene = ExtResource("2_3p2gp")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=109469974]
 transform = Transform3D(1, 0, 0, 0, 0.9833534, -0.18170351, 0, 0.18170351, 0.9833534, 0, 0.92634547, 0.14320955)
@@ -126,7 +132,7 @@ collision_layer = 2
 size = Vector3(9.099365, 0.22460938, 8.591797)
 
 [node name="FishGambaBox" parent="map" unique_id=245729500 instance=ExtResource("7_c6i3y")]
-transform = Transform3D(0.6197135, -0.01884735, 0, 0.01884735, 0.6197135, 0, 0, 0, 0.62, 0, -0.6259845, 0)
+transform = Transform3D(0.19490987, -0.005927795, 0, 0.005927795, 0.19490987, 0, 0, 0, 0.195, -0.018482799, -0.018257678, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="map" unique_id=693737539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8647532, 0.37267733)
