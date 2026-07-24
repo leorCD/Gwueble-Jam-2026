@@ -142,7 +142,7 @@ public partial class HumanPlayer : GamePlayer
             if (CardBasePositions.TryGetValue(card, out Vector3 originalPos))
             {
                 int distance = Mathf.Abs(hoveredIndex - i);
-                Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.05f);
+                Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.04f);
 
                 Tween t = CreateTween();
                 t.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Circ);

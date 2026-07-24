@@ -34,6 +34,6 @@ public partial class DialogueManager : Node
         textInstance.GlobalPosition = spawnPosition;
         textInstance.Lifetime = lifetime;
         textInstance.Text = text;
-        textInstance.Modulate = textColor.A == 0 ? Colors.White : textColor;;
+        textInstance.Modulate = textColor.A == 0 ? Colors.White : textColor;
     }
 }

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://mnjhi1v3pwif"
-path="res://.godot/imported/SecondFeesh.glb-34215782c478632571cfe7b369214103.scn"
+uid="uid://dvmqkbo2lalh0"
+path="res://.godot/imported/LargeStone (2).fbx-01a3b60faa420c6ef9d22265b5dc9f4e.scn"
 
 [deps]
 
-source_file="res://common/blender models/characters/SecondFeesh.glb"
-dest_files=["res://.godot/imported/SecondFeesh.glb-34215782c478632571cfe7b369214103.scn"]
+source_file="res://common/blender/rocks/LargeStone (2).fbx"
+dest_files=["res://.godot/imported/LargeStone (2).fbx-01a3b60faa420c6ef9d22265b5dc9f4e.scn"]
 
 [params]
 
@@ -30,7 +30,7 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=false
+animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
@@ -38,5 +38,7 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
-gltf/naming_version=2
-gltf/embedded_image_handling=1
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1
+fbx/naming_version=2

@@ -3,7 +3,7 @@ using System;
 
 public partial class CameraTilt : Camera3D
 {
-    private float maxTilt = 18f;
+    private float maxTilt = 22f;
     private Vector3 targetRotation = Vector3.Zero;
     private IInteractable interactable;
     public override void _UnhandledInput(InputEvent @event)
@@ -32,7 +32,7 @@ public partial class CameraTilt : Camera3D
         }
     }
 
-    private Vector3 originRotation = new Vector3(-20, -180, 0);
+    private Vector3 originRotation = new Vector3(0, -180, 0);
     public override void _Process(double delta)
     {
         RotationDegrees = RotationDegrees.Lerp(originRotation + targetRotation, 5f * (float)delta);

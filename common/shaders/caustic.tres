@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://5xa1ep5rptrx"]
+
+[ext_resource type="Shader" uid="uid://dnpkjwj7xy418" path="res://common/shaders/Caustics.gdshader" id="1_io21l"]
+
+[sub_resource type="Gradient" id="Gradient_ft6cd"]
+colors = PackedColorArray(0.6392157, 0, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_bb450"]
+gradient = SubResource("Gradient_ft6cd")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_io21l")
+shader_parameter/color_ramp = SubResource("GradientTexture1D_bb450")
+shader_parameter/scale = 0.01

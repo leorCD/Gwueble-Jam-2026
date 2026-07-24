@@ -52,7 +52,7 @@ public partial class GameManager : Node3D
         if (ActivePlayers.Count <= 0 || Table == null) return;
 
         float seatHeightOffset = 1f;
-        float radius = 2.75f; // distance from the center
+        float radius = 3f; // distance from the center
 
         for (int i = 0; i < ActivePlayers.Count; i++)
         {
@@ -345,7 +345,7 @@ public partial class GameManager : Node3D
 
         // look at the player theyre asking
         Tween lookTween1 = GlanceAtPlayer(currentActor, nextActor, 0.15f);
-        Tween lookTween2 = GlanceAtPlayer(nextActor, currentActor);
+        Tween lookTween2 = GlanceAtPlayer(nextActor, currentActor, 0.35f);
         await ToSignal(lookTween1, Tween.SignalName.Finished);
         if (lookTween2.IsValid()) await ToSignal(lookTween2, Tween.SignalName.Finished);
 
