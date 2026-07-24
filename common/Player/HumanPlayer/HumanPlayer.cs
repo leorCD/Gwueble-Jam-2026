@@ -109,7 +109,7 @@ public partial class HumanPlayer : GamePlayer
         if (card == null) return; // empty guard
 
         Vector3 restingPos = GetRestingPosition(card);
-        Vector3 localUp = card.Transform.Basis.Y * 0.01f;
+        Vector3 localUp = card.Transform.Basis.Y * 0.06f;
         Vector3 localForward = card.Transform.Basis.Z * -0.006f;
         Vector3 hoverTarget = restingPos + localUp + localForward;
 
@@ -141,31 +141,12 @@ public partial class HumanPlayer : GamePlayer
 
             if (CardBasePositions.TryGetValue(card, out Vector3 originalPos))
             {
-                // Kill any existing tween on this specific card to prevent overlapping conflicts
-                if (_activeTweens.TryGetValue(card, out Tween activeTween) && activeTween.IsValid())
-                {
-                    activeTween.Kill();
-                }
+                int distance = Mathf.Abs(hoveredIndex - i);
+                Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.05f);
 
-                Vector3 targetPos = originalPos;
-
-                // Only apply offset if a card is actually being hovered
-                if (hoveredIndex != -1)
-                {
-                    int distance = Mathf.Abs(hoveredIndex - i);
-                    
-                    // Basis.Z points backwards. Pushing non-hovered cards BACK.
-                    // The hovered card (distance 0) will stay at its original forward position.
-                    Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.05f);
-                    targetPos = originalPos + localZOffset;
-                }
-
-                // Create and store the new tween
                 Tween t = CreateTween();
-                t.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
-                t.TweenProperty(card, "position", targetPos, 0.15f);
-                
-                _activeTweens[card] = t;
+                t.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Circ);
+                t.TweenProperty(card, "position", originalPos + localZOffset, 0.15f);
             }
         }
     }

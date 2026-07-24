@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ccx3shqs42q60"]
 
-[ext_resource type="Script" uid="uid://b10qtdy6enewv" path="res://common/FloatingDialogue3D/FloatingText3D.cs" id="1_h6w7t"]
+[ext_resource type="Script" uid="uid://b10qtdy6enewv" path="res://common/Dialogue/FloatingText3D.cs" id="1_h6w7t"]
 
 [sub_resource type="SystemFont" id="SystemFont_bg06i"]
 font_names = PackedStringArray("Cursive")

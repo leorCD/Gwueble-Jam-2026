@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://b5jjmty5rb5j7"]
 
 [ext_resource type="Script" uid="uid://4ssctgkoolbs" path="res://Scripts/StartGame.cs" id="1_c6i3y"]
-[ext_resource type="Script" uid="uid://dlyt81xy2d387" path="res://common/FloatingDialogue3D/DialogueManager.cs" id="1_mwfav"]
-[ext_resource type="PackedScene" uid="uid://ccx3shqs42q60" path="res://common/FloatingDialogue3D/FloatingText3D.tscn" id="2_3p2gp"]
+[ext_resource type="Script" uid="uid://dlyt81xy2d387" path="res://common/Dialogue/DialogueManager.cs" id="1_mwfav"]
+[ext_resource type="PackedScene" uid="uid://ccx3shqs42q60" path="res://common/Dialogue/FloatingText3D.tscn" id="2_3p2gp"]
 [ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://531wptnymffw" path="res://common/Deck3D/deck_3d.tscn" id="3_3dxm6"]
 [ext_resource type="Texture2D" uid="uid://brvnl3tcqtyex" path="res://common/Card/back.png" id="3_trn2v"]
@@ -142,7 +142,7 @@ transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 1
 script = ExtResource("6_3dxm6")
 
 [node name="Camera3D" type="Camera3D" parent="players/You" unique_id=1143341561]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 fov = 70.0
 script = ExtResource("8_5vvyt")
 
