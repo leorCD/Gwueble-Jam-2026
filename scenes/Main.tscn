@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://4ssctgkoolbs" path="res://Scripts/StartGame.cs" id="1_c6i3y"]
 [ext_resource type="Script" uid="uid://dlyt81xy2d387" path="res://common/Dialogue/DialogueManager.cs" id="1_mwfav"]
 [ext_resource type="PackedScene" uid="uid://ccx3shqs42q60" path="res://common/Dialogue/FloatingText3D.tscn" id="2_3p2gp"]
-[ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://531wptnymffw" path="res://common/Deck3D/deck_3d.tscn" id="3_3dxm6"]
 [ext_resource type="Texture2D" uid="uid://brvnl3tcqtyex" path="res://common/Card/back.png" id="3_trn2v"]
 [ext_resource type="Texture2D" uid="uid://c4c0vd2b45jxn" path="res://common/Card/sprite_sheet.png" id="4_03owx"]
@@ -33,20 +32,8 @@ stencil_flags = 2
 [sub_resource type="BoxShape3D" id="BoxShape3D_c6i3y"]
 size = Vector3(0.56, 0.195, 0.005)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lgr22"]
-albedo_texture = ExtResource("2_cm0pq")
-uv1_triplanar = true
-uv1_world_triplanar = true
-
-[sub_resource type="SphereMesh" id="SphereMesh_trn2v"]
-radius = 2.0
-height = 0.001
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_1iba3"]
-material = ExtResource("9_nfivy")
-size = Vector2(500, 500)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ft6cd"]
+next_pass = ExtResource("9_nfivy")
 albedo_color = Color(0.6156863, 0.5568628, 0.5764706, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_bb450"]
@@ -156,10 +143,9 @@ theme_override_font_sizes/font_size = 159
 text = "test start game"
 metadata/_edit_use_anchors_ = true
 
-[node name="GameManager" type="Node3D" parent="." unique_id=885311470 node_paths=PackedStringArray("VisualDeck", "Table", "ActivePlayers")]
+[node name="GameManager" type="Node3D" parent="." unique_id=885311470 node_paths=PackedStringArray("VisualDeck", "ActivePlayers")]
 script = ExtResource("4_cm0pq")
 VisualDeck = NodePath("../Deck3D")
-Table = NodePath("../map/table CSGMesh3D")
 ActivePlayers = [NodePath("../players/You"), NodePath("../players/1Fish"), NodePath("../players/1Fish2")]
 
 [node name="Deck3D" parent="." unique_id=697087947 instance=ExtResource("3_3dxm6")]
@@ -169,31 +155,19 @@ CardFrontTextureAtlas = ExtResource("4_03owx")
 
 [node name="map" type="Node" parent="." unique_id=1991366174]
 
-[node name="table CSGMesh3D" type="CSGMesh3D" parent="map" unique_id=1489986507]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52015287, 0)
-visible = false
-material_override = SubResource("StandardMaterial3D_lgr22")
-use_collision = true
-collision_layer = 2
-mesh = SubResource("SphereMesh_trn2v")
-
 [node name="OmniLight3D" type="OmniLight3D" parent="map" unique_id=693737539]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8647532, 0.37267733)
-omni_range = 21.301
-omni_attenuation = 0.996
-
-[node name="Caustics" type="MeshInstance3D" parent="map" unique_id=1903342347]
-transform = Transform3D(1, 0, 0, 0, 2.6234336, 0, 0, 0, 1, 0, -0.81753373, 0)
-mesh = SubResource("PlaneMesh_1iba3")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="map" unique_id=1508091751]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.89716697, 0)
-mesh = SubResource("PlaneMesh_bb450")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.401182, 0)
+omni_range = 38.856
+omni_attenuation = 0.111
 
 [node name="LargeStone (1)" parent="map" unique_id=1177512257 instance=ExtResource("10_nfivy")]
 transform = Transform3D(-0.56568545, 0, 0.56568545, 0, 0.3587295, 0, -0.56568545, 0, -0.56568545, 0, -0.89101875, 0)
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="map" unique_id=1848366926]
+[node name="oceean floor" type="MeshInstance3D" parent="map" unique_id=1508091751]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.89716697, 0)
+mesh = SubResource("PlaneMesh_bb450")
+
+[node name="ocean surface" type="MeshInstance3D" parent="map" unique_id=1848366926]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 160.92715, -1.3456739e-05)
 mesh = SubResource("PlaneMesh_2ofn6")
 
@@ -239,7 +213,7 @@ metadata/_edit_group_ = true
 [node name="Model" type="Node3D" parent="players/1Fish" unique_id=356044248]
 transform = Transform3D(1, 0, 0, 0, 0.80112994, 0, 0, 0, 1, 1.5987212e-14, -0.881, -1.9078758)
 
-[node name="FirstFeesh" parent="players/1Fish/Model" unique_id=1847160358 instance=ExtResource("14_ft6cd")]
+[node name="FirstFeesh" parent="players/1Fish/Model" unique_id=1442784527 instance=ExtResource("14_ft6cd")]
 transform = Transform3D(-5.3410652e-08, 0, -1.4055154, 0, 1.1384772, 0, 1.2218933, 0, -6.143703e-08, 0, 0, 0)
 
 [node name="1Fish2" type="Node3D" parent="players" unique_id=1561541247]
@@ -250,7 +224,7 @@ metadata/_edit_group_ = true
 [node name="Model" type="Node3D" parent="players/1Fish2" unique_id=275503414]
 transform = Transform3D(1, 0, 0, 0, 0.80112994, 0, 0, 0, 1, 1.3322676e-14, -0.881, -1.9354639)
 
-[node name="SecondFeesh" parent="players/1Fish2/Model" unique_id=2092087154 instance=ExtResource("15_bb450")]
+[node name="SecondFeesh" parent="players/1Fish2/Model" unique_id=1855645138 instance=ExtResource("15_bb450")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.248237, 0, 1, 0, -4.371139e-08, 0, 0, 0)
 
 [node name="HUD" parent="." unique_id=1925378258 instance=ExtResource("13_qmy6f")]

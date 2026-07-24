@@ -12,7 +12,6 @@ public partial class GameManager : Node3D
 
 
     [Export] public Deck3D VisualDeck;
-    [Export] public Node3D Table;
     private List<Card> _serializedDeck = new List<Card>();
     private Random _random = new Random();    [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
     private int _currentTurnIndex = 0;
@@ -49,7 +48,7 @@ public partial class GameManager : Node3D
 
     private void PlacePlayers()
     {
-        if (ActivePlayers.Count <= 0 || Table == null) return;
+        if (ActivePlayers.Count <= 0 || VisualDeck == null) return;
 
         float seatHeightOffset = 1f;
         float radius = 3f; // distance from the center
@@ -59,15 +58,15 @@ public partial class GameManager : Node3D
             GamePlayer currentPlayer = ActivePlayers[i] as GamePlayer;
             float angle = i * (2.0f * Mathf.Pi / ActivePlayers.Count);
 
-            float x = Table.Position.X + (radius * Mathf.Cos(angle));
-            float z = Table.Position.Z + (radius * Mathf.Sin(angle));
-            float y = Table.Position.Y + seatHeightOffset;
+            float x = VisualDeck.Position.X + (radius * Mathf.Cos(angle));
+            float z = VisualDeck.Position.Z + (radius * Mathf.Sin(angle));
+            float y = VisualDeck.Position.Y + seatHeightOffset;
 
             Vector3 newPosition = new Vector3(x, y, z);
             Transform3D newTransform = Transform3D.Identity;
             newTransform.Origin = newPosition; // set origin first to avoid error with a global vec3.zero
             
-            Vector3 horizontalDir = newPosition - Table.GlobalPosition;
+            Vector3 horizontalDir = newPosition - VisualDeck.GlobalPosition;
             horizontalDir.Y = 0;
 
             newTransform = newTransform.LookingAt(newPosition + horizontalDir, Vector3.Up);
@@ -229,7 +228,7 @@ public partial class GameManager : Node3D
 
             _ = currentPlayer.BuildVisualHand();
 
-            Vector3 tableTargetPos = GetBookTableTopPosition(currentPlayer); 
+            Vector3 VisualDeckTargetPos = GetBookVisualDeckTopPosition(currentPlayer); 
             List<Tween> activeTweens = new List<Tween>();
 
             for (int i = 0; i < matchingRanks.Count; i++)
@@ -245,13 +244,13 @@ public partial class GameManager : Node3D
                 card.Reparent(GetTree().CurrentScene);
 
                 // Add a tiny vertical offset (Y) per card so they stack neatly without Z-fighting
-                Vector3 individualTarget = tableTargetPos + new Vector3(0, i * 0.003f, 0);
+                Vector3 individualTarget = VisualDeckTargetPos + new Vector3(0, i * 0.003f, 0);
                 
-                // Set rotation to lay completely flat on the table surface (pitch 90 deg)
+                // Set rotation to lay completely flat on the VisualDeck surface (pitch 90 deg)
                 Vector3 targetRotation = new Vector3(90, 0, 0);
 
                 // Fire off the parallel arcs!
-                Tween jumpTween = AnimateCardToTable(card, individualTarget, targetRotation);
+                Tween jumpTween = AnimateCardToVisualDeck(card, individualTarget, targetRotation);
                 if (jumpTween != null)
                 {
                     activeTweens.Add(jumpTween);
@@ -282,42 +281,42 @@ public partial class GameManager : Node3D
         return suitsCount;
     }
 
-    protected virtual Vector3 GetBookTableTopPosition(GamePlayer player)
+    protected virtual Vector3 GetBookVisualDeckTopPosition(GamePlayer player)
     {
-        if (Table == null)
+        if (VisualDeck == null)
         {
-            GD.PrintErr("[GameManager] Table reference is missing! Defaulting to Vector3.Zero");
+            GD.PrintErr("[GameManager] VisualDeck reference is missing! Defaulting to Vector3.Zero");
             return Vector3.Zero;
         }
         
-        // 1. Start exactly at the table's center base position
-        Vector3 tableCenter = Table.GlobalPosition;
+        // 1. Start exactly at the VisualDeck's center base position
+        Vector3 VisualDeckCenter = VisualDeck.GlobalPosition;
 
-        // 2. Find the horizontal direction vector from the table center pointing toward the player
-        Vector3 dirToPlayer = player.GlobalPosition - tableCenter;
+        // 2. Find the horizontal direction vector from the VisualDeck center pointing toward the player
+        Vector3 dirToPlayer = player.GlobalPosition - VisualDeckCenter;
         dirToPlayer.Y = 0; // Keep it strictly horizontal on the flat plane
         dirToPlayer = dirToPlayer.Normalized();
 
         // 3. Offset the landing zone halfway toward the player (0.5 units out of the 1.0f radius)
-        // This stops books from stacking up on top of each other in the exact center of the table.
+        // This stops books from stacking up on top of each other in the exact center of the VisualDeck.
         float distanceOffsetFromCenter = 0.5f;
-        Vector3 horizontalLandingSpot = tableCenter + (dirToPlayer * distanceOffsetFromCenter);
+        Vector3 horizontalLandingSpot = VisualDeckCenter + (dirToPlayer * distanceOffsetFromCenter);
 
-        // 4. Force the height to exactly match the table's baseline position (Y)
-        return new Vector3(horizontalLandingSpot.X, tableCenter.Y + (0.005f * player.Books), horizontalLandingSpot.Z);
+        // 4. Force the height to exactly match the VisualDeck's baseline position (Y)
+        return new Vector3(horizontalLandingSpot.X, VisualDeckCenter.Y + (0.005f * player.Books), horizontalLandingSpot.Z);
     }
 
-    protected Tween AnimateCardToTable(Card3D card, Vector3 globalPosition, Vector3 targetRotation)
+    protected Tween AnimateCardToVisualDeck(Card3D card, Vector3 globalPosition, Vector3 targetRotation)
     {
         // 1. Create a parallel tween for horizontal movement and rotation
         Tween tween = CreateTween().SetParallel(true);
         tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Quad);
 
-        // Slide horizontally across the table space
+        // Slide horizontally across the VisualDeck space
         tween.TweenProperty(card, "global_position:x", globalPosition.X, 0.6f);
         tween.TweenProperty(card, "global_position:z", globalPosition.Z, 0.6f);
         
-        // Rotate the card so it lays flat on the table surface
+        // Rotate the card so it lays flat on the VisualDeck surface
         tween.TweenProperty(card, "global_rotation_degrees", targetRotation, 0.6f);
 
         // 2. Create a separate, sequential tween chain strictly for the Y (height) axis to create the "jump" arc
@@ -329,7 +328,7 @@ public partial class GameManager : Node3D
         // Phase 1: Launch upward into the air
         yTween.TweenProperty(card, "global_position:y", peakHeight, 0.25f).SetEase(Tween.EaseType.Out);
         
-        // Phase 2: Fall down onto the table surface
+        // Phase 2: Fall down onto the VisualDeck surface
         yTween.TweenProperty(card, "global_position:y", globalPosition.Y, 0.35f).SetEase(Tween.EaseType.In);
 
         return tween;
