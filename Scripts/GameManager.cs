@@ -428,32 +428,32 @@ public partial class GameManager : Node3D
     private (Transform3D OriginalTransform, Tween AnimationTween) LookAtCards(GamePlayer actor, float tiltDegrees = 15f, float duration = 0.3f)
     {
         Node3D actorModel = actor.GetNodeOrNull<Node3D>("Model");
-        if (actorModel == null) 
-        {
-            return (Transform3D.Identity, CreateTween());
-        }
+        if (actorModel == null) return (Transform3D.Identity, CreateTween());
 
         // Capture the snapshot right before the animation starts
-        Transform3D originalSpriteTransform = actorModel.GlobalTransform;
+        Transform3D originalModelTransform = actorModel.GlobalTransform;
 
         float radians = Mathf.DegToRad(tiltDegrees);
-        Basis tiltedBasis = originalSpriteTransform.Basis * new Basis(Vector3.Right, radians);
+        Basis tiltedBasis = originalModelTransform.Basis * new Basis(Vector3.Right, radians);
 
-        Transform3D lookDownTrans = originalSpriteTransform;
+        Transform3D lookDownTrans = originalModelTransform;
         lookDownTrans.Basis = tiltedBasis;
 
         Tween tween = CreateTween();
-        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
         tween.TweenProperty(actorModel, "global_transform", lookDownTrans, duration);
 
         // Return both pieces of data packed together
-        return (originalSpriteTransform, tween);
+        return (originalModelTransform, tween);
     }    
     private Tween ResetModelLook(GamePlayer actor, Transform3D originalTransform, float duration = 0.4f)
     {
+        Node3D actorModel = actor.GetNodeOrNull<Node3D>("Model");
+        if (actorModel == null) return CreateTween();
+
         Tween tween = CreateTween();
-        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
-        tween.TweenProperty(actor, "global_transform", originalTransform, duration);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
+        tween.TweenProperty(actorModel, "global_transform", originalTransform, duration);
 
         return tween;
     }
