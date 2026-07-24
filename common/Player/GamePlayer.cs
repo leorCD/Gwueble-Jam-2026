@@ -12,6 +12,14 @@ public abstract partial class GamePlayer : Node3D
     
     public virtual void AddCard(Card3D newCard, Vector3? spawnGlobalPos = null)
     {
+        foreach (Card3D card in Hand)
+        {
+            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
+            {
+                sprite.Modulate = Colors.DimGray;
+            }
+        } // dim all current cards before adding the new one
+
         Hand.Add(newCard); // add card to hand
 
         if (newCard.GetParent<Node3D>() == null) // reparent
@@ -27,27 +35,25 @@ public abstract partial class GamePlayer : Node3D
         else
             newCard.GlobalPosition = oldGlobal;
 
-        CheckForBooks(newCard.CardData.Rank); // detect 4 of the same rank
-    }
-    public virtual void StartTurn() { throw new NotImplementedException(); }
-    public virtual void EndTurn() { throw new NotImplementedException(); }
-
-    private void CheckForBooks(CardRank newCardRank)
-    {
-        List<Card3D> matchingRanks = Hand.FindAll(c => c.CardData.Rank == newCardRank);
-
-        if (matchingRanks.Count == 4)
+        if (newCard.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D newsprite)
         {
-            Books++;
-            GD.Print($"[GamePlayer] {this.Name} found all {newCardRank}. Total Books: {Books}");
-
-            foreach (Card3D cardToRemove in matchingRanks)
+            newsprite.Modulate = Colors.DimGray;
+        }
+    }
+    public virtual void StartTurn()
+    { 
+        foreach (Card3D card in Hand)
+        {
+            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
             {
-                Hand.Remove(cardToRemove);
-                cardToRemove.QueueFree();
+                sprite.Modulate = Colors.White;
             }
         }
     }
+    public virtual void EndTurn(){}
+
+    
+
 
     public void RemoveCard(Card3D card)
     {
@@ -61,9 +67,9 @@ public abstract partial class GamePlayer : Node3D
     {
         if (Hand.Count == 0) return;
 
-        float cardSpacing = 0.05f;
-        float defaultSpacing = 0.1f;
-        float maxHandWidth = 0.3f;
+        float cardSpacing = 0.1f;
+        float defaultSpacing = 0.2f;
+        float maxHandWidth = 0.6f;
         if (Hand.Count > 1)
         {
             float tightSpacing = maxHandWidth / (Hand.Count - 1);
@@ -72,11 +78,11 @@ public abstract partial class GamePlayer : Node3D
 
         float totalWidthOfHand = (Hand.Count - 1) * cardSpacing;
         float startX = -totalWidthOfHand / 2f;
-        float distanceForward = 0.2f;
-        float fanDipIntensity = 0.015f;
+        float distanceForward = 0.6f;
+        float fanDipIntensity = 0.05f;
         float centerIndex = (Hand.Count - 1) / 2f;
         float maxRotationAngle = 12f;
-        Vector3 offset = new Vector3(0, -0.15f, 0);
+        Vector3 offset = new Vector3(0, -0.75f, 0);
         
         List<Tween> activeTweens = new List<Tween>();
         for (int i = 0; i < Hand.Count; i++)
@@ -90,7 +96,7 @@ public abstract partial class GamePlayer : Node3D
             Vector3 finalRotation = new Vector3(30, 0, zTilt);
 
             Vector3 basePosition = targetPosition + offset;
-            Vector3 initialLocalZ = new Vector3(0, 0, i * 0.002f); // see note below
+            Vector3 initialLocalZ = new Vector3(0, 0, i * 0.006f);
 
             Vector3 finalRestingPosition = basePosition + initialLocalZ;
             CardBasePositions[card] = finalRestingPosition;

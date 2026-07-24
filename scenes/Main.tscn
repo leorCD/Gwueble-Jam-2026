@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://4ssctgkoolbs" path="res://Scripts/StartGame.cs" id="1_c6i3y"]
 [ext_resource type="Script" uid="uid://dlyt81xy2d387" path="res://common/FloatingDialogue3D/DialogueManager.cs" id="1_mwfav"]
-[ext_resource type="Texture2D" uid="uid://c18q1acecb3my" path="res://Kenney Prototype Textures/PNG/Dark/texture_13.png" id="1_r0du0"]
 [ext_resource type="PackedScene" uid="uid://ccx3shqs42q60" path="res://common/FloatingDialogue3D/FloatingText3D.tscn" id="2_3p2gp"]
 [ext_resource type="Texture2D" uid="uid://cbehygvw3i4u1" path="res://Kenney Prototype Textures/PNG/Light/texture_12.png" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://531wptnymffw" path="res://common/Deck3D/deck_3d.tscn" id="3_3dxm6"]
@@ -10,11 +9,10 @@
 [ext_resource type="Texture2D" uid="uid://c4c0vd2b45jxn" path="res://common/Card/sprite_sheet.png" id="4_03owx"]
 [ext_resource type="Script" uid="uid://dbtvfvoc8dlkp" path="res://Scripts/GameManager.cs" id="4_cm0pq"]
 [ext_resource type="Script" uid="uid://clmgoo1hmd06v" path="res://common/Player/HumanPlayer/HumanPlayer.cs" id="6_3dxm6"]
-[ext_resource type="Script" uid="uid://bbfba1x3ok2f4" path="res://common/Player/AIPlayer/AIPlayer.cs" id="6_lgr22"]
 [ext_resource type="PackedScene" uid="uid://dlu5cclg85cfw" path="res://common/blender models/FishGambaBox.glb" id="7_c6i3y"]
 [ext_resource type="Script" uid="uid://cc3c7vk8pohpq" path="res://Scripts/CameraTilt.cs" id="8_5vvyt"]
-[ext_resource type="Texture2D" uid="uid://cd3dmp2vm377m" path="res://common/sprites/IMG_0251.png" id="10_20pc6"]
-[ext_resource type="Texture2D" uid="uid://dji63f78e1hin" path="res://common/sprites/IMG_0252.png" id="11_5vvyt"]
+[ext_resource type="PackedScene" uid="uid://chdhgcev4f58" path="res://common/Player/PlayerModel.tscn" id="11_wp0k4"]
+[ext_resource type="PackedScene" uid="uid://bbc0ytsvia6m8" path="res://scenes/hud.tscn" id="13_qmy6f"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_5vvyt"]
 viewport_path = NodePath("CSGBox3D/SubViewport")
@@ -35,13 +33,8 @@ uv1_triplanar = true
 uv1_world_triplanar = true
 
 [sub_resource type="SphereMesh" id="SphereMesh_trn2v"]
-radius = 0.585
+radius = 2.0
 height = 0.001
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3dxm6"]
-albedo_texture = ExtResource("1_r0du0")
-uv1_triplanar = true
-uv1_world_triplanar = true
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fos0i"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -106,9 +99,10 @@ metadata/_edit_use_anchors_ = true
 
 [node name="GameManager" type="Node3D" parent="." unique_id=885311470 node_paths=PackedStringArray("VisualDeck", "Table", "ActivePlayers")]
 script = ExtResource("4_cm0pq")
+BannedRanks = Array[int]([0, 1, 2, 3, 4, 5, 6, 7, 8])
 VisualDeck = NodePath("../Deck3D")
 Table = NodePath("../map/table CSGMesh3D")
-ActivePlayers = [NodePath("../players/You"), NodePath("../players/Fish"), NodePath("../players/Bigger Fish")]
+ActivePlayers = [NodePath("../players/You"), NodePath("../players/Fish2")]
 
 [node name="Deck3D" parent="." unique_id=697087947 instance=ExtResource("3_3dxm6")]
 transform = Transform3D(0.95975137, 0, 0.28085098, 0, 1, 0, -0.28085098, 0, 0.95975137, 0, 0.54737425, 0)
@@ -124,15 +118,8 @@ use_collision = true
 collision_layer = 2
 mesh = SubResource("SphereMesh_trn2v")
 
-[node name="floor CSGBox3D" type="CSGBox3D" parent="map" unique_id=1906619783]
-visible = false
-material_override = SubResource("StandardMaterial3D_3dxm6")
-use_collision = true
-collision_layer = 2
-size = Vector3(9.099365, 0.22460938, 8.591797)
-
 [node name="FishGambaBox" parent="map" unique_id=245729500 instance=ExtResource("7_c6i3y")]
-transform = Transform3D(0.19490987, -0.005927795, 0, 0.005927795, 0.19490987, 0, 0, 0, 0.195, -0.018482799, -0.018257678, 0)
+transform = Transform3D(0.9995378, -0.03039895, 0, 0.03039895, 0.9995378, 0, 0, 0, 1, 0.032944113, -1.709209, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="map" unique_id=693737539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8647532, 0.37267733)
@@ -150,37 +137,16 @@ environment = SubResource("Environment_lgr22")
 
 [node name="players" type="Node" parent="." unique_id=1205790821]
 
-[node name="You" type="Node3D" parent="players" unique_id=1366661234]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.8074585, 0.92164546)
+[node name="You" parent="players" unique_id=1699523273 instance=ExtResource("11_wp0k4")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 1.449794, 2.46706)
 script = ExtResource("6_3dxm6")
 
 [node name="Camera3D" type="Camera3D" parent="players/You" unique_id=1143341561]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
 fov = 70.0
 script = ExtResource("8_5vvyt")
 
-[node name="Sprite3D" type="Sprite3D" parent="players/You" unique_id=1361728744]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, -0.15934157, 0)
-shaded = true
-double_sided = false
-texture = ExtResource("10_20pc6")
+[node name="Fish2" parent="players" unique_id=468705158 instance=ExtResource("11_wp0k4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14576292, 1.6654968, -2.9589043)
 
-[node name="Fish" type="Node3D" parent="players" unique_id=1853207441]
-transform = Transform3D(0.44127092, 0, 0.8973739, 0, 1, 0, -0.8973739, 0, 0.44127092, -0.7904201, 0.6867531, -0.36785167)
-script = ExtResource("6_lgr22")
-
-[node name="Sprite3D" type="Sprite3D" parent="players/Fish" unique_id=301469225]
-transform = Transform3D(0.029999997, 0, 0, 0, 0.03, 0, 0, 0, 0.029999997, 0, -0.042233467, 0)
-shaded = true
-double_sided = false
-texture = ExtResource("10_20pc6")
-
-[node name="Bigger Fish" type="Node3D" parent="players" unique_id=1542423472]
-transform = Transform3D(0.6809381, 0, -0.7323408, 0, 1, 0, 0.7323408, 0, 0.6809381, 0.8207507, 0.6867531, -0.49743313)
-script = ExtResource("6_lgr22")
-
-[node name="Sprite3D" type="Sprite3D" parent="players/Bigger Fish" unique_id=715994198]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, -0.042233467, 0)
-shaded = true
-double_sided = false
-texture = ExtResource("11_5vvyt")
+[node name="HUD" parent="." unique_id=1925378258 instance=ExtResource("13_qmy6f")]

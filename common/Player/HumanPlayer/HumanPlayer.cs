@@ -19,15 +19,9 @@ public partial class HumanPlayer : GamePlayer
 
     public override void StartTurn()
     {
+        base.StartTurn();
+
         isMyTurn = true;
-        
-        foreach (Card3D card in Hand)
-        {
-            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
-            {
-                sprite.Modulate = Colors.White;
-            }
-        }
     }
     public override void EndTurn()
     {
@@ -36,24 +30,10 @@ public partial class HumanPlayer : GamePlayer
 
     public override void AddCard(Card3D newCard, Vector3? spawnGlobalPos)
     {
-        foreach (Card3D card in Hand)
-        {
-            if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
-            {
-                sprite.Modulate = Colors.DimGray;
-            }
-        }
-
         base.AddCard(newCard, spawnGlobalPos);
 
         newCard.CardHovered += onCardHovered;
         newCard.CardUnhovered += onCardUnhovered;
-        
-        
-        if (newCard.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D newsprite)
-        {
-            newsprite.Modulate = Colors.DimGray;
-        }
     }
 
 
@@ -130,7 +110,7 @@ public partial class HumanPlayer : GamePlayer
 
         Vector3 restingPos = GetRestingPosition(card);
         Vector3 localUp = card.Transform.Basis.Y * 0.01f;
-        Vector3 localForward = card.Transform.Basis.Z * -0.03f;
+        Vector3 localForward = card.Transform.Basis.Z * -0.006f;
         Vector3 hoverTarget = restingPos + localUp + localForward;
 
         Tween hover = CreateTween();
@@ -146,14 +126,13 @@ public partial class HumanPlayer : GamePlayer
         unhover.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Circ);
         unhover.TweenProperty(card, "position", restingPos, 0.15f);
     }
-    
+        
+    private Dictionary<Card3D, Tween> _activeTweens = new Dictionary<Card3D, Tween>();
     private void RearrangeHandZOffsets()
     {
         int hoveredIndex = _currentlyHoveredCard != null
             ? Hand.IndexOf(_currentlyHoveredCard)
             : Hand.IndexOf(_previouslyHoveredCard);
-
-        if (hoveredIndex == -1) return;
 
         for (int i = 0; i < Hand.Count; i++)
         {
@@ -162,12 +141,31 @@ public partial class HumanPlayer : GamePlayer
 
             if (CardBasePositions.TryGetValue(card, out Vector3 originalPos))
             {
-                int distance = Mathf.Abs(hoveredIndex - i);
-                Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.005f);
+                // Kill any existing tween on this specific card to prevent overlapping conflicts
+                if (_activeTweens.TryGetValue(card, out Tween activeTween) && activeTween.IsValid())
+                {
+                    activeTween.Kill();
+                }
 
+                Vector3 targetPos = originalPos;
+
+                // Only apply offset if a card is actually being hovered
+                if (hoveredIndex != -1)
+                {
+                    int distance = Mathf.Abs(hoveredIndex - i);
+                    
+                    // Basis.Z points backwards. Pushing non-hovered cards BACK.
+                    // The hovered card (distance 0) will stay at its original forward position.
+                    Vector3 localZOffset = card.Transform.Basis.Z * (distance * 0.05f);
+                    targetPos = originalPos + localZOffset;
+                }
+
+                // Create and store the new tween
                 Tween t = CreateTween();
-                t.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Circ);
-                t.TweenProperty(card, "position", originalPos + localZOffset, 0.15f);
+                t.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Sine);
+                t.TweenProperty(card, "position", targetPos, 0.15f);
+                
+                _activeTweens[card] = t;
             }
         }
     }
@@ -185,7 +183,7 @@ public partial class HumanPlayer : GamePlayer
         }
 
         EmitSignal(SignalName.CardSelected, _currentlyHoveredCard);
-
+    
         EndTurn();
     }
 

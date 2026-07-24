@@ -6,12 +6,15 @@ using System.Text.RegularExpressions;
 
 public partial class GameManager : Node3D
 {
+    [Export] public Godot.Collections.Array<CardRank> BannedRanks = new();
+    [Export] public Godot.Collections.Array<CardSuit> BannedSuits = new();
+    [Export] public int CardsToDeal = 5;
+
+
     [Export] public Deck3D VisualDeck;
     [Export] public Node3D Table;
     private List<Card> _serializedDeck = new List<Card>();
-    private Random _random = new Random();
-    private const int CardsToDeal = 5;
-    [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
+    private Random _random = new Random();    [Export] private Godot.Collections.Array<Node3D> ActivePlayers = new();
     private int _currentTurnIndex = 0;
     private bool playing = false;
 
@@ -48,8 +51,8 @@ public partial class GameManager : Node3D
     {
         if (ActivePlayers.Count <= 0 || Table == null) return;
 
-        float seatHeightOffset = 0.25f;
-        float radius = 1f; // distance from the center
+        float seatHeightOffset = 1f;
+        float radius = 2.75f; // distance from the center
 
         for (int i = 0; i < ActivePlayers.Count; i++)
         {
@@ -78,10 +81,20 @@ public partial class GameManager : Node3D
         _serializedDeck.Clear();
 
         foreach (CardSuit suit in Enum.GetValues<CardSuit>())
-        foreach (CardRank rank in Enum.GetValues<CardRank>())
         {
-            _serializedDeck.Add(new Card(rank, suit));
+            // If this entire suit is banned, skip it completely
+            if (BannedSuits != null && BannedSuits.Contains(suit)) continue;
+
+            foreach (CardRank rank in Enum.GetValues<CardRank>())
+            {
+                // If this rank is banned, skip it completely
+                if (BannedRanks != null && BannedRanks.Contains(rank)) continue;
+
+                _serializedDeck.Add(new Card(rank, suit));
+            }
         }
+        
+        GD.Print($"[GameManager] Deck generated with {_serializedDeck.Count} matching cards.");
     }
 
     private void ShuffleDeck()
@@ -108,6 +121,24 @@ public partial class GameManager : Node3D
         RunCurrentTurn();
     }
 
+    private void EndGame()
+    {
+        _currentTurnIndex = 0;
+
+        GamePlayer playerWithMostBooks = null;
+        foreach (GamePlayer player in ActivePlayers)
+        {
+            GD.Print($"{player.Name} - {player.Books} books");
+
+            if (playerWithMostBooks == null || player.Books > playerWithMostBooks.Books)
+            {
+                playerWithMostBooks = player;
+            }
+        }
+
+        GD.Print($"{playerWithMostBooks.Name} won with {playerWithMostBooks.Books} books");
+    }
+
     private async System.Threading.Tasks.Task DealCards()
     {
         GD.Print("-- Dealing out cards --");
@@ -129,9 +160,9 @@ public partial class GameManager : Node3D
         GD.Print("[GameManager] All cards finished dealing!");
     }
 
-    private void RunCurrentTurn()
+    private async void RunCurrentTurn()
     {
-        if (_currentTurnIndex >= ActivePlayers.Count) // everyone took their turn
+        if (_serializedDeck.Count <= 0)
         {
             EndGame();
             return;
@@ -139,6 +170,25 @@ public partial class GameManager : Node3D
 
         if (ActivePlayers[_currentTurnIndex] is GamePlayer currentActor)
         {
+            if (currentActor.Hand.Count == 0)
+            {
+                if (_serializedDeck.Count > 0) // if there are cards to draw from
+                {
+                    GD.Print($"[GameManager] {currentActor.Name} has no cards! Drawing a mandatory card to play.");
+                    
+                    // Force a draw and wait for the visual hand to update
+                    DealCardToPlayer(currentActor);
+                    await currentActor.BuildVisualHand();
+                }
+                else
+                {
+                    // No cards in hand and no cards in deck -> skip turn
+                    GD.Print($"[GameManager] {currentActor.Name} has no cards and deck is empty. Skipping turn.");
+                    StartNextTurn();
+                    return;
+                }
+            }
+
             GD.Print($"[GameManager] {currentActor.GetType().Name}'s turn");
 
             currentActor.CardSelected -= onCardSelected;
@@ -155,9 +205,134 @@ public partial class GameManager : Node3D
 
     private async void onCardSelected(Card3D card)
     {
-        await TakeMatchingCards(card);
+        if (card != null)
+        {
+            await TakeMatchingCards(card);
+        }
 
         StartNextTurn();
+    }
+
+    private async System.Threading.Tasks.Task CheckForBooks(GamePlayer currentPlayer, CardRank newCardRank)
+    {
+        List<Card3D> matchingRanks = currentPlayer.Hand.FindAll(c => c.CardData.Rank == newCardRank);
+
+        if (matchingRanks.Count == GetRequiredCardsForBook())
+        {
+            currentPlayer.Books++;
+            GD.Print($"[GamePlayer] {this.Name} found all {newCardRank}. Total Books: {currentPlayer.Books}");
+
+            foreach (Card3D cardToRemove in matchingRanks)
+            {
+                currentPlayer.Hand.Remove(cardToRemove);
+            }
+
+            _ = currentPlayer.BuildVisualHand();
+
+            Vector3 tableTargetPos = GetBookTableTopPosition(currentPlayer); 
+            List<Tween> activeTweens = new List<Tween>();
+
+            for (int i = 0; i < matchingRanks.Count; i++)
+            {
+                Card3D card = matchingRanks[i];
+                
+                if (card.GetNodeOrNull<Sprite3D>("FrontSprite") is Sprite3D sprite)
+                {
+                    sprite.Modulate = Colors.White;
+                }
+
+                // Reparent to the root scene so the cards don't rotate/move with the player mid-flight
+                card.Reparent(GetTree().CurrentScene);
+
+                // Add a tiny vertical offset (Y) per card so they stack neatly without Z-fighting
+                Vector3 individualTarget = tableTargetPos + new Vector3(0, i * 0.003f, 0);
+                
+                // Set rotation to lay completely flat on the table surface (pitch 90 deg)
+                Vector3 targetRotation = new Vector3(90, 0, 0);
+
+                // Fire off the parallel arcs!
+                Tween jumpTween = AnimateCardToTable(card, individualTarget, targetRotation);
+                if (jumpTween != null)
+                {
+                    activeTweens.Add(jumpTween);
+                }
+            }
+
+            // 4. Wait for every card in the book to complete its flight
+            foreach (Tween tween in activeTweens)
+            {
+                if (tween.IsValid())
+                {
+                    await ToSignal(tween, Tween.SignalName.Finished);
+                }
+            }
+
+            foreach (Card3D cardToRemove in matchingRanks)
+            {
+                _serializedDeck.Remove(cardToRemove.CardData);
+            }
+        }
+    }
+
+    private int GetRequiredCardsForBook()
+    {
+        // A standard book has 4 cards (one per suit), minus any suits that are completely banned
+        int suitsCount = Enum.GetValues<CardSuit>().Length;
+        if (BannedSuits != null) suitsCount -= BannedSuits.Count;
+        return suitsCount;
+    }
+
+    protected virtual Vector3 GetBookTableTopPosition(GamePlayer player)
+    {
+        if (Table == null)
+        {
+            GD.PrintErr("[GameManager] Table reference is missing! Defaulting to Vector3.Zero");
+            return Vector3.Zero;
+        }
+        
+        // 1. Start exactly at the table's center base position
+        Vector3 tableCenter = Table.GlobalPosition;
+
+        // 2. Find the horizontal direction vector from the table center pointing toward the player
+        Vector3 dirToPlayer = player.GlobalPosition - tableCenter;
+        dirToPlayer.Y = 0; // Keep it strictly horizontal on the flat plane
+        dirToPlayer = dirToPlayer.Normalized();
+
+        // 3. Offset the landing zone halfway toward the player (0.5 units out of the 1.0f radius)
+        // This stops books from stacking up on top of each other in the exact center of the table.
+        float distanceOffsetFromCenter = 0.5f;
+        Vector3 horizontalLandingSpot = tableCenter + (dirToPlayer * distanceOffsetFromCenter);
+
+        // 4. Force the height to exactly match the table's baseline position (Y)
+        return new Vector3(horizontalLandingSpot.X, tableCenter.Y + (0.005f * player.Books), horizontalLandingSpot.Z);
+    }
+
+    protected Tween AnimateCardToTable(Card3D card, Vector3 globalPosition, Vector3 targetRotation)
+    {
+        // 1. Create a parallel tween for horizontal movement and rotation
+        Tween tween = CreateTween().SetParallel(true);
+        tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Quad);
+
+        // Slide horizontally across the table space
+        tween.TweenProperty(card, "global_position:x", globalPosition.X, 0.6f);
+        tween.TweenProperty(card, "global_position:z", globalPosition.Z, 0.6f);
+        
+        // Rotate the card so it lays flat on the table surface
+        tween.TweenProperty(card, "global_rotation_degrees", targetRotation, 0.6f);
+
+        // 2. Create a separate, sequential tween chain strictly for the Y (height) axis to create the "jump" arc
+        Tween yTween = CreateTween().SetTrans(Tween.TransitionType.Quad);
+        
+        // Calculate a peak height (adds 0.25 meters of altitude above the highest point)
+        float peakHeight = Mathf.Max(card.GlobalPosition.Y, globalPosition.Y) + 0.25f; 
+        
+        // Phase 1: Launch upward into the air
+        yTween.TweenProperty(card, "global_position:y", peakHeight, 0.25f).SetEase(Tween.EaseType.Out);
+        
+        // Phase 2: Fall down onto the table surface
+        yTween.TweenProperty(card, "global_position:y", globalPosition.Y, 0.35f).SetEase(Tween.EaseType.In);
+
+        return tween;
     }
 
     private async System.Threading.Tasks.Task TakeMatchingCards(Card3D card)
@@ -178,7 +353,7 @@ public partial class GameManager : Node3D
         currentActor.Say($"do you have any {card.CardData.Rank}s", 2f);
 
         // make the target look at their cards
-        var (origin, downTween, nextactorsprite) = LookAtCards(nextActor, tiltDegrees: 15f, duration: 0.3f);
+        var (origin, downTween) = LookAtCards(nextActor, tiltDegrees: 15f, duration: 0.3f);
         await ToSignal(downTween, Tween.SignalName.Finished);
 
         // wait some time for them to think
@@ -186,7 +361,7 @@ public partial class GameManager : Node3D
         await ToSignal(GetTree().CreateTimer(thinkTime), SceneTreeTimer.SignalName.Timeout);
 
         // make look away from the cards
-        ResetSprite(nextactorsprite, origin, 0.3f);
+        ResetModelLook(nextActor, origin, 0.3f);
 
         if (nextActor.hasCard(card) is { Count: > 0} matchingCards)
         {
@@ -200,6 +375,8 @@ public partial class GameManager : Node3D
             }
 
             await nextActor.BuildVisualHand();
+            
+            await CheckForBooks(currentActor, card.CardData.Rank);
         }
         else
         {
@@ -248,16 +425,16 @@ public partial class GameManager : Node3D
         return tween;
     }
 
-    private (Transform3D OriginalTransform, Tween AnimationTween, Sprite3D sprite) LookAtCards(GamePlayer actor, float tiltDegrees = 15f, float duration = 0.3f)
+    private (Transform3D OriginalTransform, Tween AnimationTween) LookAtCards(GamePlayer actor, float tiltDegrees = 15f, float duration = 0.3f)
     {
-        Sprite3D actorSprite = actor.GetNodeOrNull<Sprite3D>("Sprite3D");
-        if (actorSprite == null) 
+        Node3D actorModel = actor.GetNodeOrNull<Node3D>("Model");
+        if (actorModel == null) 
         {
-            return (Transform3D.Identity, CreateTween(), null);
+            return (Transform3D.Identity, CreateTween());
         }
 
         // Capture the snapshot right before the animation starts
-        Transform3D originalSpriteTransform = actorSprite.GlobalTransform;
+        Transform3D originalSpriteTransform = actorModel.GlobalTransform;
 
         float radians = Mathf.DegToRad(tiltDegrees);
         Basis tiltedBasis = originalSpriteTransform.Basis * new Basis(Vector3.Right, radians);
@@ -267,12 +444,12 @@ public partial class GameManager : Node3D
 
         Tween tween = CreateTween();
         tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
-        tween.TweenProperty(actorSprite, "global_transform", lookDownTrans, duration);
+        tween.TweenProperty(actorModel, "global_transform", lookDownTrans, duration);
 
         // Return both pieces of data packed together
-        return (originalSpriteTransform, tween, actorSprite);
+        return (originalSpriteTransform, tween);
     }    
-    private Tween ResetSprite(Sprite3D actor, Transform3D originalTransform, float duration = 0.4f)
+    private Tween ResetModelLook(GamePlayer actor, Transform3D originalTransform, float duration = 0.4f)
     {
         Tween tween = CreateTween();
         tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
@@ -281,7 +458,7 @@ public partial class GameManager : Node3D
         return tween;
     }
     
-    public void DealCardToPlayer(GamePlayer activePlayer)
+    public async void DealCardToPlayer(GamePlayer activePlayer)
     {
         if (VisualDeck == null)
         {
@@ -294,26 +471,9 @@ public partial class GameManager : Node3D
         {
             // pass card to player
             activePlayer.AddCard(drawnCard, VisualDeck.GlobalPosition);
+            await CheckForBooks(activePlayer, drawnCard.CardData.Rank);
 
-            GD.Print($"{activePlayer.Name} drew a {drawnCard.CardData.Rank} of {drawnCard.CardData.Suit}");
+            // GD.Print($"{activePlayer.Name} drew a {drawnCard.CardData.Rank} of {drawnCard.CardData.Suit}");
         }
-    }
-
-    private void EndGame()
-    {
-        _currentTurnIndex = 0;
-
-        GamePlayer playerWithMostBooks = null;
-        foreach (GamePlayer player in ActivePlayers)
-        {
-            GD.Print($"{player.Name} - {player.Books} books");
-
-            if (playerWithMostBooks == null || player.Books > playerWithMostBooks.Books)
-            {
-                playerWithMostBooks = player;
-            }
-        }
-
-        GD.Print($"{playerWithMostBooks.Name} won with {playerWithMostBooks.Books} books");
     }
 }

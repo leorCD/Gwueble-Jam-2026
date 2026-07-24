@@ -5,10 +5,9 @@
 [sub_resource type="SystemFont" id="SystemFont_bg06i"]
 font_names = PackedStringArray("Cursive")
 hinting = 0
+subpixel_positioning = 0
 
 [node name="FloatingText3D" type="Label3D" unique_id=1518772547]
-transform = Transform3D(0.195, 0, 0, 0, 0.195, 0, 0, 0, 0.195, 0, 0, 0)
-pixel_size = 0.01
 billboard = 1
 alpha_cut = 1
 render_priority = 59

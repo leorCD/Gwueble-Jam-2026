@@ -4,28 +4,27 @@
 [ext_resource type="Texture2D" uid="uid://c4c0vd2b45jxn" path="res://common/Card/sprite_sheet.png" id="2_1piq8"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1piq8"]
-size = Vector3(0.09472656, 0.16699219, 0.001953125)
+size = Vector3(0.30664063, 0.4572754, 0.001953125)
 
 [node name="Card3D" type="Node3D" unique_id=578617489]
 script = ExtResource("1_1piq8")
 
 [node name="BackSprite" type="Sprite3D" parent="." unique_id=498187732]
-transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
+pixel_size = 0.0005787
 shaded = true
 double_sided = false
 alpha_cut = 1
 texture_filter = 0
 
 [node name="FrontSprite" type="Sprite3D" parent="." unique_id=1783000827]
-transform = Transform3D(-0.02, 0, -3.0199159e-09, 0, 0.02, 0, 3.0199159e-09, 0, -0.02, 0, 0, 0)
+transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
+pixel_size = 0.0005787
 shaded = true
 double_sided = false
 alpha_cut = 1
-texture_filter = 0
 texture = ExtResource("2_1piq8")
 hframes = 13
 vframes = 4
-frame = 1
 
 [node name="Area3D" type="Area3D" parent="." unique_id=1339361210]
 collision_layer = 2

@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bbc0ytsvia6m8"]
+
+[ext_resource type="Texture2D" uid="uid://brrcwqbxit1ev" path="res://common/sprites/MoneyIcon.png" id="1_ahhtf"]
+
+[node name="HUD" type="CanvasLayer" unique_id=106658048]
+
+[node name="Control" type="Control" parent="." unique_id=1925378258]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=1088915213]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.01484375
+anchor_top = 0.5847222
+anchor_right = 0.246875
+anchor_bottom = 0.63472223
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control/HBoxContainer" unique_id=348979390]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="Control/HBoxContainer" unique_id=2146092001]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Money"

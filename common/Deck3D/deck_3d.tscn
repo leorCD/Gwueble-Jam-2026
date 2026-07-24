@@ -11,7 +11,7 @@ albedo_color = Color(0.99215686, 0, 0.21568628, 0.101960786)
 
 [sub_resource type="BoxMesh" id="BoxMesh_d2jkq"]
 material = SubResource("StandardMaterial3D_6cc6i")
-size = Vector3(0.155, 0.02, 0.235)
+size = Vector3(0.465, 0.06, 0.705)
 
 [node name="Deck3D" type="Node3D" unique_id=697087947]
 script = ExtResource("1_6cc6i")
@@ -20,5 +20,6 @@ CardTemplate = ExtResource("2_d2jkq")
 
 [node name="debugPosition" type="MeshInstance3D" parent="." unique_id=1602221144]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.009365384, 0)
+visible = false
 cast_shadow = 0
 mesh = SubResource("BoxMesh_d2jkq")
