@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://b805yxyykn66d"]
+
+[ext_resource type="Material" uid="uid://5xa1ep5rptrx" path="res://common/shaders/caustic.tres" id="1_upctu"]
+[ext_resource type="Shader" uid="uid://dnpkjwj7xy418" path="res://common/shaders/Caustics.gdshader" id="2_11y2r"]
+[ext_resource type="PackedScene" uid="uid://dlrsmb4rwknsf" path="res://blender/fish sign/fish_sign.tscn" id="3_o0tnf"]
+[ext_resource type="Script" uid="uid://cc3c7vk8pohpq" path="res://Scripts/CameraTilt.cs" id="4_jmdev"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_aaywf"]
+sky_top_color = Color(0.36002865, 0.5298586, 0.6705777, 1)
+sky_horizon_color = Color(0.09689926, 0.47586954, 0.64650077, 1)
+sky_curve = 1.4270477
+ground_horizon_color = Color(0.09803922, 0.4745098, 0.64705884, 1)
+ground_curve = 1.940117
+
+[sub_resource type="Sky" id="Sky_3p2gp"]
+sky_material = SubResource("ProceduralSkyMaterial_aaywf")
+
+[sub_resource type="Environment" id="Environment_1abgu"]
+background_mode = 2
+sky = SubResource("Sky_3p2gp")
+tonemap_mode = 2
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.09803922, 0.4745098, 0.64705884, 1)
+fog_sun_scatter = 0.06
+fog_depth_curve = 1.2745615
+fog_depth_begin = 5.5
+fog_depth_end = 161.5
+volumetric_fog_density = 0.02
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_yt8fu"]
+dof_blur_far_enabled = true
+dof_blur_far_distance = 81.24
+dof_blur_far_transition = 152.65
+dof_blur_amount = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ft6cd"]
+next_pass = ExtResource("1_upctu")
+albedo_color = Color(0.6156863, 0.5568628, 0.5764706, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_o0tnf"]
+material = SubResource("StandardMaterial3D_ft6cd")
+size = Vector2(500, 500)
+
+[sub_resource type="Gradient" id="Gradient_1iba3"]
+colors = PackedColorArray(0.9529412, 0, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_yxlcp"]
+gradient = SubResource("Gradient_1iba3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jmdev"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_11y2r")
+shader_parameter/color_ramp = SubResource("GradientTexture1D_yxlcp")
+shader_parameter/scale = 0.01
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_b6cxs"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_jmdev")
+flip_faces = true
+size = Vector2(500, 500)
+
+[node name="Menu" type="Node3D" unique_id=810764659]
+
+[node name="environment" type="Node" parent="." unique_id=156847957]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="environment" unique_id=586822542]
+transform = Transform3D(-0.8660254, -0.31803918, 0.3858123, 0, 0.77162457, 0.63607824, -0.50000006, 0.5508599, -0.66824645, 0, 0, 0)
+light_color = Color(0.67058825, 1, 1, 1)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="environment" unique_id=1781388199]
+environment = SubResource("Environment_1abgu")
+camera_attributes = SubResource("CameraAttributesPractical_yt8fu")
+
+[node name="map" type="Node" parent="environment" unique_id=1376550801]
+
+[node name="oceean floor" type="MeshInstance3D" parent="environment/map" unique_id=198997923]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.89716697, 0)
+mesh = SubResource("PlaneMesh_o0tnf")
+
+[node name="ocean surface" type="MeshInstance3D" parent="environment/map" unique_id=303380029]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 160.92715, -1.3456739e-05)
+mesh = SubResource("PlaneMesh_b6cxs")
+
+[node name="FishSign" parent="environment/map" unique_id=535590177 instance=ExtResource("3_o0tnf")]
+transform = Transform3D(0.29, 0, 0, 0, 0.29, 0, 0, 0, 0.29, 0, -1.042291, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=487928449]
+transform = Transform3D(0.5, 0.16111876, 0.85090584, -7.450581e-09, 0.98254144, -0.1860439, -0.8660254, 0.09302194, 0.49127063, 3.8075564, 0.25458378, 0.61746746)
+fov = 70.0
+script = ExtResource("4_jmdev")
+originRotation = Vector3(10, 60, 0)

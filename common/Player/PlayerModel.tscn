@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://chdhgcev4f58"]
 
 [ext_resource type="Script" uid="uid://bbfba1x3ok2f4" path="res://common/Player/AIPlayer/AIPlayer.cs" id="1_u00fx"]
-[ext_resource type="PackedScene" uid="uid://dhq5t5j4spg18" path="res://common/blender/characters/FirstFeesh.glb" id="3_7nfs4"]
+[ext_resource type="PackedScene" uid="uid://dhq5t5j4spg18" path="res://blender/characters/FirstFeesh.glb" id="3_7nfs4"]
 
 [node name="FirstFish" type="Node3D" unique_id=1699523273]
 script = ExtResource("1_u00fx")

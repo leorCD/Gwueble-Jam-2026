@@ -32,7 +32,7 @@ public partial class CameraTilt : Camera3D
         }
     }
 
-    private Vector3 originRotation = new Vector3(0, -180, 0);
+    [Export] public Vector3 originRotation = new Vector3(0, -180, 0);
     public override void _Process(double delta)
     {
         RotationDegrees = RotationDegrees.Lerp(originRotation + targetRotation, 5f * (float)delta);

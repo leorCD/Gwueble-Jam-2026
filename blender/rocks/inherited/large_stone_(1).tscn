@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dii77i4jsuqju"]
+
+[ext_resource type="PackedScene" uid="uid://0uwxi7h7rjpa" path="res://blender/rocks/LargeStone (1).fbx" id="1_gilgf"]
+[ext_resource type="Material" uid="uid://5xa1ep5rptrx" path="res://common/shaders/caustic.tres" id="2_iscn1"]
+
+[node name="LargeStone (1)" unique_id=1177512257 instance=ExtResource("1_gilgf")]
+
+[node name="LargeRock1" parent="." index="0" unique_id=2072373703]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+material_overlay = ExtResource("2_iscn1")

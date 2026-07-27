@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://dlrsmb4rwknsf"]
+
+[ext_resource type="PackedScene" uid="uid://bc1tqobqtr15x" path="res://blender/fish sign/FishSign.glb" id="1_agyuo"]
+[ext_resource type="Script" uid="uid://5c8f0ap7rr6" path="res://Scripts/Fish Sign/PlayButton.cs" id="2_1s1j1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dfmnf"]
+size = Vector3(5.244583, 0.95080566, 0.29922485)
+
+[sub_resource type="SystemFont" id="SystemFont_bg06i"]
+font_names = PackedStringArray("Cursive")
+hinting = 0
+subpixel_positioning = 0
+
+[node name="FishSign" unique_id=1522448624 instance=ExtResource("1_agyuo")]
+
+[node name="button" type="Area3D" parent="." index="1" unique_id=304193402]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 6.4778624, 0)
+script = ExtResource("2_1s1j1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="button" index="0" unique_id=960093538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.62984467, 0.026428223, 0.07685851)
+shape = SubResource("BoxShape3D_dfmnf")
+debug_color = Color(0.9882353, 0, 0, 1)
+
+[node name="Label3D" type="Label3D" parent="button" index="1" unique_id=415416120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.59221023, 0, 0)
+shaded = true
+double_sided = false
+text = "Play"
+font = SubResource("SystemFont_bg06i")
+font_size = 100
+outline_size = 30
