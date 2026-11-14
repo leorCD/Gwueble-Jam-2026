@@ -15,4 +15,4 @@ Made for Gwueble Jam 2026, a short game jam. It's a game about risk and desperat
 - Blender (3D models)
 
 ## Status
-Abandoned [One line on what works right now, e.g. "core gambling loop is playable."]
+Abandoned
